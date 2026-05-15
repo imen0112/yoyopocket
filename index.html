@@ -1451,7 +1451,7 @@ const DEFAULT_ACCOUNTS = {
 function getAccounts() {
     try {
         const saved = JSON.parse(localStorage.getItem('yp_accounts') || '{}');
-        return { ...DEFAULT_ACCOUNTS, ...saved };
+        return { ...saved, ...DEFAULT_ACCOUNTS }; // default accounts always win
     } catch(e) { return DEFAULT_ACCOUNTS; }
 }
 
