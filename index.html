@@ -1486,7 +1486,7 @@ function handleLogin() {
         return;
     }
 
-    sessionStorage.setItem('yp_session', user);
+    localStorage.setItem('yp_session', user);
     enterApp(acc.username);
 }
 
@@ -1520,7 +1520,7 @@ function enterApp(username) {
 }
 
 function logout() {
-    sessionStorage.removeItem('yp_session');
+    localStorage.removeItem('yp_session');
     state.wallets = {};
     state.expenses = [];
     document.getElementById('loginScreen').classList.remove('hidden');
@@ -1544,7 +1544,7 @@ function toggleEye() {
 // Override saveState to be user-specific
 const _origSave = saveState;
 function saveState() {
-    const session = sessionStorage.getItem('yp_session');
+    const session = localStorage.getItem('yp_session');
     if (session) {
         localStorage.setItem('yoyopocket_v2_' + session, JSON.stringify(state));
     }
@@ -1562,7 +1562,7 @@ renderRates();
 render();
 
 // Check session
-const existingSession = sessionStorage.getItem('yp_session');
+const existingSession = localStorage.getItem('yp_session');
 if (existingSession) {
     const accounts = getAccounts();
     const acc = accounts[existingSession];
