@@ -2,6 +2,6 @@
   "name": "yoyo-pocket",
   "version": "1.0.0",
   "scripts": {
-    "start": "npx serve . --listen $PORT"
+    "start": "node server.js"
   }
 }
