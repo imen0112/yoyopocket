@@ -8,6 +8,7 @@
   "theme_color": "#9B5DE5",
   "orientation": "portrait",
   "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "/nef.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
   ]
 }
