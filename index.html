@@ -834,8 +834,8 @@
             C'est parti! 🚀
         </button>
 
-        <div class="login-switch" id="switchText">
-            Pas encore de compte? <span onclick="switchMode()">Créer un compte</span>
+        <div class="login-switch" style="opacity:0.35">
+            Accès privé 🔒 — Yoyo & Imen seulement
         </div>
     </div>
 </div>
@@ -1444,8 +1444,16 @@ async function hashPassword(pwd) {
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
+const DEFAULT_ACCOUNTS = {
+    'yoyo': { username: 'yoyo', hash: 'bfa3d224aa3263490dad0f945f4ea741fc002265fc4d45d0d5c2a4e6ca88dfe3' },
+    'imen': { username: 'imen', hash: 'eb01dd90291c243ab2bfd5716c6b6bccd2a579c5bb5a1b987fb930bc5b78fbca' },
+};
+
 function getAccounts() {
-    try { return JSON.parse(localStorage.getItem('yp_accounts') || '{}'); } catch(e) { return {}; }
+    try {
+        const saved = JSON.parse(localStorage.getItem('yp_accounts') || '{}');
+        return { ...DEFAULT_ACCOUNTS, ...saved };
+    } catch(e) { return DEFAULT_ACCOUNTS; }
 }
 
 function saveAccounts(accounts) {
