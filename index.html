@@ -1013,15 +1013,41 @@ let state = {
     selCat: 0,
 };
 
-function loadState() {
+let currentUser = null;
+
+function loadState() {} // replaced by server load
+
+async function saveState() {
+    if (!currentUser) return;
     try {
-        const s = localStorage.getItem('yoyopocket_v2');
-        if (s) Object.assign(state, JSON.parse(s));
-    } catch(e) {}
+        await fetch(`/api/data/${currentUser}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(state)
+        });
+    } catch(e) {
+        // fallback to localStorage
+        localStorage.setItem('yp_' + currentUser, JSON.stringify(state));
+    }
 }
 
-function saveState() {
-    localStorage.setItem('yoyopocket_v2', JSON.stringify(state));
+async function loadUserData(username) {
+    try {
+        const res = await fetch(`/api/data/${username}`);
+        const data = await res.json();
+        if (data && Object.keys(data).length > 0) {
+            Object.assign(state, data);
+        } else {
+            state.wallets = {};
+            state.expenses = [];
+            state.mainCurrency = 'TND';
+            state.selCat = 0;
+        }
+    } catch(e) {
+        // fallback to localStorage
+        const s = localStorage.getItem('yp_' + username);
+        if (s) Object.assign(state, JSON.parse(s));
+    }
 }
 
 // ===== CURRENCY UTILS =====
@@ -1499,39 +1525,27 @@ function showLoginError(msg) {
     el.style.animation = 'shake 0.45s ease';
 }
 
-function enterApp(username) {
+async function enterApp(username) {
+    currentUser = username.toLowerCase();
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('ownerName').textContent = username;
-    // Load user-specific data
-    const saved = localStorage.getItem('yoyopocket_v2_' + username.toLowerCase());
-    if (saved) {
-        try { Object.assign(state, JSON.parse(saved)); } catch(e) {}
-    } else {
-        state.wallets = {};
-        state.expenses = [];
-        state.mainCurrency = 'TND';
-        state.selCat = 0;
-    }
+    await loadUserData(currentUser);
     fillAllSelects();
     renderCategories();
     renderRates();
     render();
-    if (Object.keys(state.wallets).length > 0) setTimeout(launchConfetti, 600);
+    if (Object.keys(state.wallets || {}).length > 0) setTimeout(launchConfetti, 600);
 }
 
 function logout() {
     localStorage.removeItem('yp_session');
+    currentUser = null;
     state.wallets = {};
     state.expenses = [];
     document.getElementById('loginScreen').classList.remove('hidden');
     document.getElementById('loginUser').value = '';
     document.getElementById('loginPass').value = '';
     document.getElementById('loginError').style.display = 'none';
-    if (!isRegisterMode) {} // reset to login mode
-    isRegisterMode = false;
-    document.getElementById('loginCardTitle').textContent = '👋 Bon retour!';
-    document.getElementById('loginBtn').textContent = "C'est parti! 🚀";
-    document.getElementById('switchText').innerHTML = 'Pas encore de compte? <span onclick="switchMode()">Créer un compte</span>';
 }
 
 function toggleEye() {
@@ -1541,14 +1555,7 @@ function toggleEye() {
     else { inp.type = 'password'; btn.textContent = '👁️'; }
 }
 
-// Override saveState to be user-specific
-const _origSave = saveState;
-function saveState() {
-    const session = localStorage.getItem('yp_session');
-    if (session) {
-        localStorage.setItem('yoyopocket_v2_' + session, JSON.stringify(state));
-    }
-}
+// saveState is now async and defined above (saves to server)
 
 // Enter key on login
 document.getElementById('loginPass').addEventListener('keypress', e => { if(e.key==='Enter') handleLogin(); });
