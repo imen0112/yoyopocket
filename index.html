@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Yoyo Pocket 🪙</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --purple: #9B5DE5;
+            --pink: #F15BB5;
+            --yellow: #FEE440;
+            --blue: #00BBF9;
+            --green: #00F5D4;
+            --dark: #12022b;
+            --dark2: #1e0542;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 76px;
+        }
+
+        /* Animated BG */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 15% 15%, rgba(155,93,229,0.55) 0%, transparent 45%),
+                radial-gradient(ellipse at 85% 85%, rgba(241,91,181,0.55) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 50%, rgba(0,187,249,0.2) 0%, transparent 60%);
+            animation: bgDrift 9s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+
+        @keyframes bgDrift {
+            to {
+                background:
+                    radial-gradient(ellipse at 85% 15%, rgba(241,91,181,0.55) 0%, transparent 45%),
+                    radial-gradient(ellipse at 15% 85%, rgba(155,93,229,0.55) 0%, transparent 45%),
+                    radial-gradient(ellipse at 60% 40%, rgba(254,228,64,0.15) 0%, transparent 55%);
+            }
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            padding: 20px 20px 14px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            background: rgba(18, 2, 43, 0.82);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .header-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: var(--yellow);
+            animation: glow 2.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(254,228,64,0.4), 0 0 20px rgba(254,228,64,0.2); }
+            to   { text-shadow: 0 0 20px rgba(254,228,64,0.8), 0 0 40px rgba(254,228,64,0.4), 0 0 60px rgba(254,228,64,0.2); }
+        }
+
+        .header-sub {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.5);
+            margin-top: 2px;
+            font-weight: 700;
+        }
+
+        /* ===== BALANCE CARD ===== */
+        .balance-card {
+            margin: 18px 16px 14px;
+            background: linear-gradient(135deg, #7b2ff7, #f222b5);
+            border-radius: 26px;
+            padding: 22px 22px 18px;
+            box-shadow: 0 24px 60px rgba(155,93,229,0.45), inset 0 1px 0 rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::after {
+            content: '🪙';
+            position: absolute;
+            font-size: 110px;
+            right: -16px;
+            top: -18px;
+            opacity: 0.12;
+            pointer-events: none;
+            transform: rotate(15deg);
+        }
+
+        .balance-label {
+            font-size: 0.72rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .balance-amount {
+            font-family: 'Fredoka One', cursive;
+            font-size: 3.2rem;
+            color: #fff;
+            line-height: 1.1;
+            margin: 6px 0 4px;
+        }
+
+        .balance-msg {
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: rgba(255,255,255,0.92);
+            min-height: 20px;
+        }
+
+        .main-currency-row {
+            margin-top: 14px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .mc-chip {
+            background: rgba(255,255,255,0.18);
+            border: 2px solid transparent;
+            border-radius: 30px;
+            padding: 4px 11px;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.75rem;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .mc-chip.active {
+            background: #fff;
+            color: var(--purple);
+            border-color: #fff;
+            transform: scale(1.08);
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            margin: 0 16px 18px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 18px;
+            padding: 4px;
+            gap: 3px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px 4px;
+            border: none;
+            background: transparent;
+            border-radius: 14px;
+            color: rgba(255,255,255,0.45);
+            font-size: 0.72rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+            font-family: 'Nunito', sans-serif;
+            letter-spacing: 0.3px;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            color: white;
+            box-shadow: 0 6px 20px rgba(155,93,229,0.45);
+            transform: scale(1.04);
+        }
+
+        /* ===== SECTIONS ===== */
+        .section { display: none; padding: 0 16px; }
+        .section.active { display: block; animation: sectionIn 0.3s ease; }
+
+        @keyframes sectionIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 22px;
+            padding: 20px;
+            margin-bottom: 14px;
+            backdrop-filter: blur(12px);
+        }
+
+        .card-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.05rem;
+            color: var(--yellow);
+            margin-bottom: 16px;
+        }
+
+        /* ===== FORM ===== */
+        .form-row { display: flex; gap: 9px; margin-bottom: 11px; }
+
+        .iw { position: relative; }
+        .iw.f2 { flex: 2; }
+        .iw.f1 { flex: 1; }
+        .iw.full { flex: 1; }
+
+        .iw input,
+        .iw select {
+            width: 100%;
+            background: rgba(255,255,255,0.09);
+            border: 2px solid rgba(255,255,255,0.13);
+            border-radius: 14px;
+            padding: 13px 15px;
+            color: white;
+            font-size: 1rem;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .iw input:focus,
+        .iw select:focus {
+            border-color: var(--yellow);
+            box-shadow: 0 0 0 3px rgba(254,228,64,0.15);
+        }
+
+        .iw input::placeholder { color: rgba(255,255,255,0.3); }
+
+        .iw select option { background: #1e0542; color: white; }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 900;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s;
+            position: relative;
+        }
+
+        .btn:hover { transform: translateY(-3px); }
+        .btn:active { transform: scale(0.94); }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--yellow), #ffaa00);
+            color: var(--dark);
+            box-shadow: 0 8px 24px rgba(254,228,64,0.3);
+        }
+        .btn-add:hover { box-shadow: 0 12px 32px rgba(254,228,64,0.5); }
+
+        .btn-exp {
+            background: linear-gradient(135deg, #ff4757, #ff2d78);
+            color: white;
+            box-shadow: 0 8px 24px rgba(255,71,87,0.3);
+        }
+        .btn-exp:hover { box-shadow: 0 12px 32px rgba(255,71,87,0.5); }
+
+        .btn-conv {
+            background: linear-gradient(135deg, var(--blue), var(--green));
+            color: var(--dark);
+            box-shadow: 0 8px 24px rgba(0,187,249,0.3);
+        }
+
+        .bounce-anim {
+            animation: btnBounce 0.45s cubic-bezier(0.36,0.07,0.19,0.97);
+        }
+
+        @keyframes btnBounce {
+            0%,100% { transform: scale(1); }
+            30% { transform: scale(0.88); }
+            60% { transform: scale(1.12); }
+            80% { transform: scale(0.96); }
+        }
+
+        /* ===== MONEY LIST ===== */
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .list-item:last-child { border-bottom: none; }
+
+        .list-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .list-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .icon-money { background: linear-gradient(135deg, var(--purple), var(--pink)); }
+        .icon-exp { background: rgba(255,71,87,0.18); }
+
+        .item-main {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.15rem;
+        }
+        .item-main.green { color: var(--green); }
+        .item-main.red { color: #ff6b9d; }
+
+        .item-sub {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.4);
+            font-weight: 700;
+            margin-top: 1px;
+        }
+
+        .del-btn {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 10px;
+            transition: background 0.2s;
+            color: rgba(255,255,255,0.4);
+        }
+        .del-btn:hover { background: rgba(255,71,87,0.2); }
+
+        /* ===== CATEGORIES ===== */
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 7px;
+            margin-bottom: 14px;
+        }
+
+        .cat-btn {
+            background: rgba(255,255,255,0.07);
+            border: 2px solid transparent;
+            border-radius: 14px;
+            padding: 10px 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .cat-btn.sel {
+            border-color: var(--yellow);
+            background: rgba(254,228,64,0.14);
+        }
+
+        .cat-btn .ci { font-size: 1.5rem; display: block; }
+        .cat-btn .cn { font-size: 0.58rem; font-weight: 800; color: rgba(255,255,255,0.65); display: block; margin-top: 3px; }
+
+        /* ===== CONVERTER ===== */
+        .conv-result {
+            background: linear-gradient(135deg, rgba(0,187,249,0.12), rgba(0,245,212,0.12));
+            border: 2px solid rgba(0,187,249,0.35);
+            border-radius: 18px;
+            padding: 18px;
+            text-align: center;
+            margin-top: 14px;
+        }
+
+        .conv-res-label { font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: 700; }
+
+        .conv-res-amount {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.2rem;
+            color: var(--green);
+            line-height: 1.2;
+        }
+
+        .conv-mid {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .conv-line {
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .swap-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 6px 20px rgba(155,93,229,0.4);
+        }
+        .swap-btn:hover { transform: rotate(180deg) scale(1.1); }
+
+        /* ===== RATES ===== */
+        .rate-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .rate-item:last-child { border-bottom: none; }
+
+        .rate-flag { font-size: 1.4rem; margin-right: 10px; }
+        .rate-name { font-weight: 700; color: white; font-size: 0.88rem; }
+        .rate-code { font-size: 0.68rem; color: rgba(255,255,255,0.4); }
+        .rate-val { font-family: 'Fredoka One', cursive; color: var(--green); font-size: 1rem; }
+
+        /* ===== EMPTY STATE ===== */
+        .empty {
+            text-align: center;
+            padding: 28px 16px;
+            color: rgba(255,255,255,0.35);
+        }
+        .empty .e-icon { font-size: 3rem; display: block; margin-bottom: 8px; }
+        .empty p { font-size: 0.88rem; font-weight: 700; }
+
+        /* ===== BOTTOM TOTAL ===== */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(18,2,43,0.95);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .bb-label {
+            font-size: 0.68rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 2px;
+        }
+
+        .bb-amount {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.35rem;
+        }
+
+        .bb-amount.pos { color: var(--yellow); }
+        .bb-amount.neg { color: #ff6b9d; }
+
+        .bb-exp { font-family: 'Fredoka One', cursive; font-size: 1rem; color: #ff6b9d; }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-15px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20%     { transform: translateX(-8px); }
+            40%     { transform: translateX(8px); }
+            60%     { transform: translateX(-5px); }
+            80%     { transform: translateX(5px); }
+        }
+
+        .slide-in { animation: slideIn 0.3s ease; }
+
+        /* ===== EMOJI OVERLAY ===== */
+        .emoji-fly {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            font-size: 5rem;
+            transform: translate(-50%, -50%) scale(0);
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+        }
+
+        .emoji-fly.show {
+            animation: emojiPop 1.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+        }
+
+        @keyframes emojiPop {
+            0%   { opacity: 0; transform: translate(-50%,-50%) scale(0) rotate(-10deg); }
+            20%  { opacity: 1; transform: translate(-50%,-60%) scale(1.3) rotate(5deg); }
+            55%  { opacity: 1; transform: translate(-50%,-90%) scale(1) rotate(-3deg); }
+            100% { opacity: 0; transform: translate(-50%,-130%) scale(0.5) rotate(8deg); }
+        }
+
+        /* ===== CONFETTI ===== */
+        #confettiCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* SECTION LABEL */
+        .sec-lbl {
+            font-size: 0.7rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.38);
+            margin-bottom: 7px;
+        }
+
+        /* wiggle for total */
+        .wiggle { animation: wig 0.4s ease; }
+        @keyframes wig {
+            0%,100% { transform: rotate(0); }
+            25% { transform: rotate(-4deg); }
+            75% { transform: rotate(4deg); }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="confettiCanvas"></canvas>
+<div class="emoji-fly" id="emojiOverlay">😭</div>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-title">Yoyo Pocket 🪙</div>
+    <div class="header-sub">L'empire financier de <span id="ownerName">la star</span> 👑</div>
+</div>
+
+<!-- BALANCE CARD -->
+<div class="balance-card">
+    <div class="balance-label">💰 NET TOTAL</div>
+    <div class="balance-amount" id="balanceAmt">0,00 €</div>
+    <div class="balance-msg" id="balanceMsg">Lance-toi! Mets ton argent ici 😜</div>
+    <div class="main-currency-row" id="mcRow"></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+    <button class="tab active" onclick="switchTab('wallet', this)">💰 Argent</button>
+    <button class="tab" onclick="switchTab('convert', this)">🔄 Convertir</button>
+    <button class="tab" onclick="switchTab('expenses', this)">📝 Dépenses</button>
+</div>
+
+<!-- ===== WALLET ===== -->
+<div class="section active" id="section-wallet">
+    <div class="card">
+        <div class="card-title">➕ Ajouter de l'argent</div>
+        <div class="form-row">
+            <div class="iw f2">
+                <input type="number" id="addAmt" placeholder="Montant 💵" inputmode="decimal" step="0.01" min="0">
+            </div>
+            <div class="iw f1">
+                <select id="addCur"></select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="iw full">
+                <input type="text" id="addLbl" placeholder="D'où ça vient? (cadeau, argent de poche...) 🎁" maxlength="40">
+            </div>
+        </div>
+        <button class="btn btn-add" id="addBtn" onclick="addMoney()">
+            Hop dans la poche! 💸
+        </button>
+    </div>
+
+    <div class="card">
+        <div class="card-title">🏦 Mes poches</div>
+        <div id="moneyList">
+            <div class="empty">
+                <span class="e-icon">👻</span>
+                <p>Tes poches sont vides... Remplis-les!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== CONVERT ===== -->
+<div class="section" id="section-convert">
+    <div class="card">
+        <div class="card-title">🔄 Convertisseur de devises</div>
+        <div class="sec-lbl">Montant à convertir</div>
+        <div class="form-row">
+            <div class="iw f2">
+                <input type="number" id="cvAmt" placeholder="0,00" inputmode="decimal" oninput="doConvert()">
+            </div>
+            <div class="iw f1">
+                <select id="cvFrom" onchange="doConvert()"></select>
+            </div>
+        </div>
+        <div class="conv-mid">
+            <div class="conv-line"></div>
+            <button class="swap-btn" onclick="swapCurrencies()">⇅</button>
+            <div class="conv-line"></div>
+        </div>
+        <div class="sec-lbl">Converti en</div>
+        <div class="iw" style="margin-bottom:14px">
+            <select id="cvTo" onchange="doConvert()" style="width:100%"></select>
+        </div>
+        <div class="conv-result">
+            <div class="conv-res-label">Résultat ✨</div>
+            <div class="conv-res-amount" id="cvResult">—</div>
+            <div class="conv-res-label" id="cvRate">Tape un montant pour convertir 👆</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">📊 Taux vs Euro (1 €)</div>
+        <div id="ratesList"></div>
+    </div>
+</div>
+
+<!-- ===== EXPENSES ===== -->
+<div class="section" id="section-expenses">
+    <div class="card">
+        <div class="card-title">💸 Ajouter une dépense</div>
+        <div class="sec-lbl">Catégorie</div>
+        <div class="categories" id="catGrid"></div>
+        <div class="form-row">
+            <div class="iw f2">
+                <input type="number" id="expAmt" placeholder="Combien? 💸" inputmode="decimal" step="0.01" min="0">
+            </div>
+            <div class="iw f1">
+                <select id="expCur"></select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="iw full">
+                <input type="text" id="expDesc" placeholder="Pour quoi? 🤔" maxlength="40">
+            </div>
+        </div>
+        <button class="btn btn-exp" id="expBtn" onclick="addExpense()">
+            Aïe, j'ai dépensé! 😬
+        </button>
+    </div>
+
+    <div class="card">
+        <div class="card-title">🧾 Mes dépenses</div>
+        <div id="expenseList">
+            <div class="empty">
+                <span class="e-icon">🎉</span>
+                <p>Aucune dépense! T'es un champion! 💪</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+    <div>
+        <div class="bb-label">💎 Total net</div>
+        <div class="bb-amount pos" id="bbTotal">0,00 €</div>
+    </div>
+    <div style="text-align:right">
+        <div class="bb-label">💸 Dépenses</div>
+        <div class="bb-exp" id="bbExp">0,00 €</div>
+    </div>
+</div>
+
+<script>
+// ===== CURRENCIES =====
+const CUR = {
+    EUR: { sym: '€', name: 'Euro',             flag: '🇪🇺', rate: 1 },
+    USD: { sym: '$', name: 'Dollar US',         flag: '🇺🇸', rate: 1.08 },
+    GBP: { sym: '£', name: 'Livre sterling',    flag: '🇬🇧', rate: 0.86 },
+    CHF: { sym: 'Fr',name: 'Franc suisse',      flag: '🇨🇭', rate: 0.97 },
+    MAD: { sym: 'DH',name: 'Dirham marocain',   flag: '🇲🇦', rate: 10.85 },
+    TND: { sym: 'DT',name: 'Dinar tunisien',    flag: '🇹🇳', rate: 3.35 },
+    DZD: { sym: 'DA',name: 'Dinar algérien',    flag: '🇩🇿', rate: 145 },
+    CAD: { sym: 'C$',name: 'Dollar canadien',   flag: '🇨🇦', rate: 1.47 },
+    SAR: { sym: 'SR',name: 'Riyal saoudien',    flag: '🇸🇦', rate: 4.05 },
+    JPY: { sym: '¥', name: 'Yen japonais',      flag: '🇯🇵', rate: 162 },
+};
+
+const CATS = [
+    { icon: '🍕', name: 'Bouffe' },
+    { icon: '🎮', name: 'Gaming' },
+    { icon: '👟', name: 'Fringues' },
+    { icon: '🚌', name: 'Transport' },
+    { icon: '🎬', name: 'Sorties' },
+    { icon: '📱', name: 'Tech' },
+    { icon: '💇', name: 'Beauté' },
+    { icon: '🎁', name: 'Cadeaux' },
+];
+
+const MSGS = [
+    [0, 0,     "Lance-toi! Mets ton argent ici 😜"],
+    [0.01, 9,  "Un tout petit début... même pas de quoi acheter une baguette 🥖"],
+    [10, 29,   "Pas mal pour commencer! Continue tes économies 💪"],
+    [30, 99,   "On y est! T'as de l'argent à toi! 😎"],
+    [100, 299, "RESPECT. T'es un vrai économiste en herbe 🧠"],
+    [300, 999, "OHHH t'es une banque ambulante! 🏦"],
+    [1000, 4999,"T'es riche! On peut être amis? 🤑"],
+    [5000, Infinity, "MILLIONNAIRE EN HERBE! 💰👑🔥"],
+];
+
+let state = {
+    mainCurrency: 'EUR',
+    money: [],
+    expenses: [],
+    selCat: 0,
+};
+
+function loadState() {
+    try {
+        const s = localStorage.getItem('yoyopocket_v2');
+        if (s) Object.assign(state, JSON.parse(s));
+    } catch(e) {}
+}
+
+function saveState() {
+    localStorage.setItem('yoyopocket_v2', JSON.stringify(state));
+}
+
+// ===== CURRENCY UTILS =====
+function toEUR(amt, cur) { return amt / CUR[cur].rate; }
+function fromEUR(eur, cur) { return eur * CUR[cur].rate; }
+function cvt(amt, from, to) { return fromEUR(toEUR(amt, from), to); }
+
+function fmt(amt, cur) {
+    const s = CUR[cur].sym;
+    const n = Math.abs(amt).toFixed(2).replace('.', ',');
+    return `${n} ${s}`;
+}
+
+// ===== MESSAGES =====
+function getMsg(amt) {
+    for (const [min, max, msg] of MSGS) {
+        if (amt >= min && amt <= max) return msg;
+    }
+    return MSGS[MSGS.length-1][2];
+}
+
+// ===== POPULATE SELECTS =====
+function fillSelect(id, defaultCur) {
+    const el = document.getElementById(id);
+    const cur = el.value || defaultCur || 'EUR';
+    el.innerHTML = '';
+    Object.entries(CUR).forEach(([code, d]) => {
+        const o = document.createElement('option');
+        o.value = code;
+        o.textContent = `${d.flag} ${code}`;
+        if (code === cur) o.selected = true;
+        el.appendChild(o);
+    });
+}
+
+function fillAllSelects() {
+    fillSelect('addCur', 'EUR');
+    fillSelect('cvFrom', 'EUR');
+    fillSelect('cvTo', 'USD');
+    fillSelect('expCur', 'EUR');
+}
+
+function renderMainCurrency() {
+    const row = document.getElementById('mcRow');
+    row.innerHTML = '';
+    Object.keys(CUR).forEach(code => {
+        const btn = document.createElement('button');
+        btn.className = `mc-chip${code === state.mainCurrency ? ' active' : ''}`;
+        btn.textContent = `${CUR[code].flag} ${code}`;
+        btn.onclick = () => { state.mainCurrency = code; saveState(); render(); };
+        row.appendChild(btn);
+    });
+}
+
+function renderCategories() {
+    const g = document.getElementById('catGrid');
+    g.innerHTML = '';
+    CATS.forEach((c, i) => {
+        const d = document.createElement('div');
+        d.className = `cat-btn${i === state.selCat ? ' sel' : ''}`;
+        d.innerHTML = `<span class="ci">${c.icon}</span><span class="cn">${c.name}</span>`;
+        d.onclick = () => { state.selCat = i; renderCategories(); };
+        g.appendChild(d);
+    });
+}
+
+function renderRates() {
+    const c = document.getElementById('ratesList');
+    c.innerHTML = '';
+    Object.entries(CUR).forEach(([code, d]) => {
+        const r = document.createElement('div');
+        r.className = 'rate-item';
+        r.innerHTML = `
+            <div style="display:flex;align-items:center">
+                <span class="rate-flag">${d.flag}</span>
+                <div>
+                    <div class="rate-name">${d.name}</div>
+                    <div class="rate-code">${code}</div>
+                </div>
+            </div>
+            <div class="rate-val">1 € = ${d.rate} ${d.sym}</div>
+        `;
+        c.appendChild(r);
+    });
+}
+
+// ===== RENDER LISTS =====
+function renderMoneyList() {
+    const c = document.getElementById('moneyList');
+    if (!state.money.length) {
+        c.innerHTML = `<div class="empty"><span class="e-icon">👻</span><p>Tes poches sont vides... Remplis-les!</p></div>`;
+        return;
+    }
+    c.innerHTML = '';
+    state.money.forEach((item, i) => {
+        const d = document.createElement('div');
+        d.className = 'list-item slide-in';
+        const inMain = cvt(item.amount, item.currency, state.mainCurrency);
+        d.innerHTML = `
+            <div class="list-left">
+                <div class="list-icon icon-money">💰</div>
+                <div>
+                    <div class="item-main green">${fmt(item.amount, item.currency)}</div>
+                    <div class="item-sub">${item.label || 'Sans description'} · ≈ ${fmt(inMain, state.mainCurrency)}</div>
+                </div>
+            </div>
+            <button class="del-btn" onclick="delMoney(${i})">🗑️</button>
+        `;
+        c.appendChild(d);
+    });
+}
+
+function renderExpenses() {
+    const c = document.getElementById('expenseList');
+    if (!state.expenses.length) {
+        c.innerHTML = `<div class="empty"><span class="e-icon">🎉</span><p>Aucune dépense! T'es un champion! 💪</p></div>`;
+        return;
+    }
+    c.innerHTML = '';
+    [...state.expenses].reverse().forEach((item, ri) => {
+        const i = state.expenses.length - 1 - ri;
+        const cat = CATS[item.category] || CATS[0];
+        const date = new Date(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+        const inMain = cvt(item.amount, item.currency, state.mainCurrency);
+        const d = document.createElement('div');
+        d.className = 'list-item slide-in';
+        d.innerHTML = `
+            <div class="list-left">
+                <div class="list-icon icon-exp">${cat.icon}</div>
+                <div>
+                    <div style="font-weight:800;color:white;font-size:0.9rem">${item.desc || cat.name}</div>
+                    <div class="item-sub">${cat.name} · ${date} · ≈ ${fmt(inMain, state.mainCurrency)}</div>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+                <div class="item-main red">-${fmt(item.amount, item.currency)}</div>
+                <button class="del-btn" onclick="delExpense(${i})">🗑️</button>
+            </div>
+        `;
+        c.appendChild(d);
+    });
+}
+
+function renderBalance() {
+    const totalMonEUR = state.money.reduce((s, i) => s + toEUR(i.amount, i.currency), 0);
+    const totalExpEUR = state.expenses.reduce((s, i) => s + toEUR(i.amount, i.currency), 0);
+    const netEUR = totalMonEUR - totalExpEUR;
+
+    const mc = state.mainCurrency;
+    const netMain = fromEUR(netEUR, mc);
+    const expMain = fromEUR(totalExpEUR, mc);
+
+    const balEl = document.getElementById('balanceAmt');
+    balEl.textContent = fmt(netMain, mc);
+
+    document.getElementById('balanceMsg').textContent = getMsg(netMain);
+
+    const bbTotal = document.getElementById('bbTotal');
+    bbTotal.textContent = fmt(netMain, mc);
+    bbTotal.className = `bb-amount ${netMain >= 0 ? 'pos' : 'neg'}`;
+    document.getElementById('bbExp').textContent = fmt(expMain, mc);
+}
+
+function render() {
+    renderBalance();
+    renderMainCurrency();
+    renderMoneyList();
+    renderExpenses();
+}
+
+// ===== ACTIONS =====
+function addMoney() {
+    const amt = parseFloat(document.getElementById('addAmt').value);
+    const cur = document.getElementById('addCur').value;
+    const lbl = document.getElementById('addLbl').value.trim();
+    if (!amt || amt <= 0) { shakeEl('addAmt'); return; }
+    state.money.push({ amount: amt, currency: cur, label: lbl, date: Date.now() });
+    saveState();
+    render();
+    document.getElementById('addAmt').value = '';
+    document.getElementById('addLbl').value = '';
+    launchConfetti();
+    bounce('addBtn');
+}
+
+function addExpense() {
+    const amt = parseFloat(document.getElementById('expAmt').value);
+    const cur = document.getElementById('expCur').value;
+    const desc = document.getElementById('expDesc').value.trim();
+    if (!amt || amt <= 0) { shakeEl('expAmt'); return; }
+    state.expenses.push({ amount: amt, currency: cur, desc, category: state.selCat, date: Date.now() });
+    saveState();
+    render();
+    document.getElementById('expAmt').value = '';
+    document.getElementById('expDesc').value = '';
+    showEmoji('😭');
+    bounce('expBtn');
+}
+
+function delMoney(i) { state.money.splice(i, 1); saveState(); render(); }
+function delExpense(i) { state.expenses.splice(i, 1); saveState(); render(); }
+
+// ===== CONVERTER =====
+function doConvert() {
+    const amt = parseFloat(document.getElementById('cvAmt').value);
+    const from = document.getElementById('cvFrom').value;
+    const to = document.getElementById('cvTo').value;
+    if (!amt || isNaN(amt)) {
+        document.getElementById('cvResult').textContent = '—';
+        document.getElementById('cvRate').textContent = 'Tape un montant pour convertir 👆';
+        return;
+    }
+    const res = cvt(amt, from, to);
+    document.getElementById('cvResult').textContent = fmt(res, to);
+    const r1 = cvt(1, from, to);
+    document.getElementById('cvRate').textContent = `1 ${CUR[from].sym} = ${r1.toFixed(4)} ${CUR[to].sym}`;
+}
+
+function swapCurrencies() {
+    const f = document.getElementById('cvFrom');
+    const t = document.getElementById('cvTo');
+    [f.value, t.value] = [t.value, f.value];
+    doConvert();
+}
+
+// ===== TABS =====
+function switchTab(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('section-' + id).classList.add('active');
+    btn.classList.add('active');
+}
+
+// ===== UI HELPERS =====
+function shakeEl(id) {
+    const el = document.getElementById(id);
+    el.style.borderColor = '#ff4757';
+    el.style.animation = 'shake 0.45s ease';
+    el.focus();
+    setTimeout(() => { el.style.borderColor = ''; el.style.animation = ''; }, 600);
+}
+
+function bounce(id) {
+    const el = document.getElementById(id);
+    el.classList.remove('bounce-anim');
+    void el.offsetWidth;
+    el.classList.add('bounce-anim');
+    setTimeout(() => el.classList.remove('bounce-anim'), 500);
+}
+
+// ===== EMOJI OVERLAY =====
+function showEmoji(emoji) {
+    const el = document.getElementById('emojiOverlay');
+    el.textContent = emoji;
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+}
+
+// ===== CONFETTI =====
+const canvas = document.getElementById('confettiCanvas');
+const ctx2d = canvas.getContext('2d');
+let confettis = [];
+let rafId = null;
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function launchConfetti() {
+    const colors = ['#FEE440','#F15BB5','#9B5DE5','#00BBF9','#00F5D4','#ff9f43','#fff'];
+    for (let i = 0; i < 90; i++) {
+        confettis.push({
+            x: Math.random() * canvas.width,
+            y: -10 - Math.random() * 40,
+            w: Math.random() * 11 + 4,
+            h: Math.random() * 6 + 3,
+            col: colors[Math.floor(Math.random() * colors.length)],
+            rot: Math.random() * 360,
+            rs: (Math.random() - 0.5) * 12,
+            vx: (Math.random() - 0.5) * 5,
+            vy: Math.random() * 3.5 + 1.5,
+        });
+    }
+    if (!rafId) animConf();
+}
+
+function animConf() {
+    ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+    confettis = confettis.filter(c => c.y < canvas.height + 20);
+    confettis.forEach(c => {
+        c.x += c.vx; c.y += c.vy; c.vy += 0.08; c.rot += c.rs;
+        ctx2d.save();
+        ctx2d.translate(c.x, c.y);
+        ctx2d.rotate(c.rot * Math.PI / 180);
+        ctx2d.fillStyle = c.col;
+        ctx2d.globalAlpha = Math.max(0, 1 - c.y / canvas.height);
+        ctx2d.fillRect(-c.w/2, -c.h/2, c.w, c.h);
+        ctx2d.restore();
+    });
+    if (confettis.length > 0) { rafId = requestAnimationFrame(animConf); }
+    else { rafId = null; ctx2d.clearRect(0, 0, canvas.width, canvas.height); }
+}
+
+// ===== ENTER KEY =====
+['addAmt','addLbl'].forEach(id =>
+    document.getElementById(id).addEventListener('keypress', e => { if(e.key==='Enter') addMoney(); }));
+['expAmt','expDesc'].forEach(id =>
+    document.getElementById(id).addEventListener('keypress', e => { if(e.key==='Enter') addExpense(); }));
+
+// ===== INIT =====
+loadState();
+fillAllSelects();
+renderCategories();
+renderRates();
+render();
+
+// Show confetti on first load if has money 🎊
+if (state.money.length > 0) setTimeout(launchConfetti, 600);
+</script>
+</body>
+</html>
