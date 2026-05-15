@@ -1472,41 +1472,22 @@ function switchMode() {
     document.getElementById('loginPass').value = '';
 }
 
-async function handleLogin() {
-    const user = document.getElementById('loginUser').value.trim();
+function handleLogin() {
+    const user = document.getElementById('loginUser').value.trim().toLowerCase();
     const pass = document.getElementById('loginPass').value;
-    const errEl = document.getElementById('loginError');
-    errEl.style.display = 'none';
 
-    if (!user || !pass) {
-        showLoginError('Remplis tous les champs! 👆');
-        return;
-    }
-    if (pass.length < 4) {
-        showLoginError('Mot de passe trop court (min 4 caractères) 🔑');
-        return;
-    }
+    if (!user || !pass) { showLoginError('Remplis tous les champs! 👆'); return; }
 
     const accounts = getAccounts();
-    const acc = accounts[user.toLowerCase()];
+    const acc = accounts[user];
 
-    if (!acc) {
-        showLoginError('Pseudo inconnu 😬');
+    if (!acc || acc.pwd !== pass) {
+        showLoginError('Mauvais pseudo ou mot de passe 😬');
         bounce('loginBtn');
         return;
     }
 
-    // Check password (direct for default accounts, hash for others)
-    const hash = await hashPassword(pass);
-    const validPwd = acc.pwd ? acc.pwd === pass : acc.hash === hash;
-
-    if (!validPwd) {
-        showLoginError('Mauvais mot de passe 😬');
-        bounce('loginBtn');
-        return;
-    }
-
-    sessionStorage.setItem('yp_session', user.toLowerCase());
+    sessionStorage.setItem('yp_session', user);
     enterApp(acc.username);
 }
 
