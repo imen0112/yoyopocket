@@ -1445,8 +1445,8 @@ async function hashPassword(pwd) {
 }
 
 const DEFAULT_ACCOUNTS = {
-    'yoyo': { username: 'yoyo', hash: 'bfa3d224aa3263490dad0f945f4ea741fc002265fc4d45d0d5c2a4e6ca88dfe3' },
-    'imen': { username: 'imen', hash: 'eb01dd90291c243ab2bfd5716c6b6bccd2a579c5bb5a1b987fb930bc5b78fbca' },
+    'yoyo': { username: 'yoyo', pwd: 'youssef' },
+    'imen': { username: 'imen', pwd: '0112' },
 };
 
 function getAccounts() {
@@ -1487,28 +1487,27 @@ async function handleLogin() {
         return;
     }
 
-    const hash = await hashPassword(pass);
     const accounts = getAccounts();
+    const acc = accounts[user.toLowerCase()];
 
-    if (isRegisterMode) {
-        if (accounts[user.toLowerCase()]) {
-            showLoginError('Ce pseudo est déjà pris 😅 Choisis-en un autre!');
-            return;
-        }
-        accounts[user.toLowerCase()] = { username: user, hash };
-        saveAccounts(accounts);
-        sessionStorage.setItem('yp_session', user.toLowerCase());
-        enterApp(user);
-    } else {
-        const acc = accounts[user.toLowerCase()];
-        if (!acc || acc.hash !== hash) {
-            showLoginError('Mauvais pseudo ou mot de passe 😬');
-            bounce('loginBtn');
-            return;
-        }
-        sessionStorage.setItem('yp_session', user.toLowerCase());
-        enterApp(acc.username);
+    if (!acc) {
+        showLoginError('Pseudo inconnu 😬');
+        bounce('loginBtn');
+        return;
     }
+
+    // Check password (direct for default accounts, hash for others)
+    const hash = await hashPassword(pass);
+    const validPwd = acc.pwd ? acc.pwd === pass : acc.hash === hash;
+
+    if (!validPwd) {
+        showLoginError('Mauvais mot de passe 😬');
+        bounce('loginBtn');
+        return;
+    }
+
+    sessionStorage.setItem('yp_session', user.toLowerCase());
+    enterApp(acc.username);
 }
 
 function showLoginError(msg) {
