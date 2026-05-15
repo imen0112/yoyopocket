@@ -1,0 +1,13 @@
+{
+  "name": "Yoyo Pocket 🪙",
+  "short_name": "Yoyo Pocket",
+  "description": "Gère ton argent comme un boss 💸",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#12022b",
+  "theme_color": "#9B5DE5",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
