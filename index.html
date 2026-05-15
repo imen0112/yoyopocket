@@ -551,6 +551,166 @@
             25% { transform: rotate(-4deg); }
             75% { transform: rotate(4deg); }
         }
+
+        /* ===== LOGIN SCREEN ===== */
+        #loginScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 28px 24px;
+            background: var(--dark);
+        }
+
+        #loginScreen::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(155,93,229,0.6) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(241,91,181,0.6) 0%, transparent 50%);
+            animation: bgDrift 9s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+
+        .login-logo {
+            font-family: 'Fredoka One', cursive;
+            font-size: 3rem;
+            color: var(--yellow);
+            animation: glow 2.5s ease-in-out infinite alternate;
+            margin-bottom: 6px;
+        }
+
+        .login-tagline {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+            font-weight: 700;
+            margin-bottom: 36px;
+            text-align: center;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 380px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 26px;
+            padding: 28px 24px;
+            backdrop-filter: blur(16px);
+        }
+
+        .login-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.3rem;
+            color: var(--yellow);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .login-input-wrap {
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+        .login-input-wrap .l-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        .login-input-wrap input {
+            width: 100%;
+            background: rgba(255,255,255,0.09);
+            border: 2px solid rgba(255,255,255,0.13);
+            border-radius: 14px;
+            padding: 13px 15px 13px 42px;
+            color: white;
+            font-size: 1rem;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .login-input-wrap input:focus {
+            border-color: var(--yellow);
+            box-shadow: 0 0 0 3px rgba(254,228,64,0.15);
+        }
+
+        .login-input-wrap input::placeholder { color: rgba(255,255,255,0.3); }
+
+        .eye-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 4px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .login-error {
+            background: rgba(255,71,87,0.15);
+            border: 1px solid rgba(255,71,87,0.4);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #ff6b9d;
+            margin-bottom: 14px;
+            display: none;
+            text-align: center;
+        }
+
+        .login-switch {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.45);
+            font-weight: 700;
+        }
+
+        .login-switch span {
+            color: var(--yellow);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 10px;
+            transition: background 0.2s;
+            color: rgba(255,255,255,0.4);
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .logout-btn:hover { background: rgba(255,71,87,0.2); }
+
+        .header { position: relative; }
+
+        #loginScreen.hidden { display: none; }
+
+        @keyframes loginIn {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .login-card { animation: loginIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
     </style>
 </head>
 <body>
@@ -558,10 +718,41 @@
 <canvas id="confettiCanvas"></canvas>
 <div class="emoji-fly" id="emojiOverlay">😭</div>
 
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="loginScreen">
+    <div class="login-logo">Yoyo Pocket 🪙</div>
+    <div class="login-tagline">Ton empire financier t'attend 👑</div>
+
+    <!-- LOGIN FORM -->
+    <div class="login-card" id="loginCard">
+        <div class="login-title" id="loginCardTitle">👋 Bon retour!</div>
+        <div class="login-error" id="loginError">Mauvais pseudo ou mot de passe 😬</div>
+
+        <div class="login-input-wrap">
+            <span class="l-icon">👤</span>
+            <input type="text" id="loginUser" placeholder="Ton pseudo" autocomplete="username" maxlength="20">
+        </div>
+        <div class="login-input-wrap">
+            <span class="l-icon">🔑</span>
+            <input type="password" id="loginPass" placeholder="Mot de passe" autocomplete="current-password" maxlength="30">
+            <button class="eye-toggle" type="button" onclick="toggleEye()" id="eyeBtn">👁️</button>
+        </div>
+
+        <button class="btn btn-add" id="loginBtn" onclick="handleLogin()" style="margin-top:4px">
+            C'est parti! 🚀
+        </button>
+
+        <div class="login-switch" id="switchText">
+            Pas encore de compte? <span onclick="switchMode()">Créer un compte</span>
+        </div>
+    </div>
+</div>
+
 <!-- HEADER -->
 <div class="header">
     <div class="header-title">Yoyo Pocket 🪙</div>
     <div class="header-sub">L'empire financier de <span id="ownerName">la star</span> 👑</div>
+    <button class="logout-btn" onclick="logout()" title="Se déconnecter">🚪</button>
 </div>
 
 <!-- BALANCE CARD -->
@@ -1060,6 +1251,137 @@ function animConf() {
 ['expAmt','expDesc'].forEach(id =>
     document.getElementById(id).addEventListener('keypress', e => { if(e.key==='Enter') addExpense(); }));
 
+// ===== AUTH =====
+let isRegisterMode = false;
+
+async function hashPassword(pwd) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pwd));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function getAccounts() {
+    try { return JSON.parse(localStorage.getItem('yp_accounts') || '{}'); } catch(e) { return {}; }
+}
+
+function saveAccounts(accounts) {
+    localStorage.setItem('yp_accounts', JSON.stringify(accounts));
+}
+
+function switchMode() {
+    isRegisterMode = !isRegisterMode;
+    document.getElementById('loginCardTitle').textContent = isRegisterMode ? '✨ Crée ton compte!' : '👋 Bon retour!';
+    document.getElementById('loginBtn').textContent = isRegisterMode ? 'Créer mon compte! 🎉' : 'C\'est parti! 🚀';
+    document.getElementById('switchText').innerHTML = isRegisterMode
+        ? 'Déjà un compte? <span onclick="switchMode()">Se connecter</span>'
+        : 'Pas encore de compte? <span onclick="switchMode()">Créer un compte</span>';
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+}
+
+async function handleLogin() {
+    const user = document.getElementById('loginUser').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    const errEl = document.getElementById('loginError');
+    errEl.style.display = 'none';
+
+    if (!user || !pass) {
+        showLoginError('Remplis tous les champs! 👆');
+        return;
+    }
+    if (pass.length < 4) {
+        showLoginError('Mot de passe trop court (min 4 caractères) 🔑');
+        return;
+    }
+
+    const hash = await hashPassword(pass);
+    const accounts = getAccounts();
+
+    if (isRegisterMode) {
+        if (accounts[user.toLowerCase()]) {
+            showLoginError('Ce pseudo est déjà pris 😅 Choisis-en un autre!');
+            return;
+        }
+        accounts[user.toLowerCase()] = { username: user, hash };
+        saveAccounts(accounts);
+        sessionStorage.setItem('yp_session', user.toLowerCase());
+        enterApp(user);
+    } else {
+        const acc = accounts[user.toLowerCase()];
+        if (!acc || acc.hash !== hash) {
+            showLoginError('Mauvais pseudo ou mot de passe 😬');
+            bounce('loginBtn');
+            return;
+        }
+        sessionStorage.setItem('yp_session', user.toLowerCase());
+        enterApp(acc.username);
+    }
+}
+
+function showLoginError(msg) {
+    const el = document.getElementById('loginError');
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = 'shake 0.45s ease';
+}
+
+function enterApp(username) {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('ownerName').textContent = username;
+    // Load user-specific data
+    const saved = localStorage.getItem('yoyopocket_v2_' + username.toLowerCase());
+    if (saved) {
+        try { Object.assign(state, JSON.parse(saved)); } catch(e) {}
+    } else {
+        state.money = [];
+        state.expenses = [];
+        state.mainCurrency = 'EUR';
+        state.selCat = 0;
+    }
+    fillAllSelects();
+    renderCategories();
+    renderRates();
+    render();
+    if (state.money.length > 0) setTimeout(launchConfetti, 600);
+}
+
+function logout() {
+    sessionStorage.removeItem('yp_session');
+    state.money = [];
+    state.expenses = [];
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginError').style.display = 'none';
+    if (!isRegisterMode) {} // reset to login mode
+    isRegisterMode = false;
+    document.getElementById('loginCardTitle').textContent = '👋 Bon retour!';
+    document.getElementById('loginBtn').textContent = "C'est parti! 🚀";
+    document.getElementById('switchText').innerHTML = 'Pas encore de compte? <span onclick="switchMode()">Créer un compte</span>';
+}
+
+function toggleEye() {
+    const inp = document.getElementById('loginPass');
+    const btn = document.getElementById('eyeBtn');
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+    else { inp.type = 'password'; btn.textContent = '👁️'; }
+}
+
+// Override saveState to be user-specific
+const _origSave = saveState;
+function saveState() {
+    const session = sessionStorage.getItem('yp_session');
+    if (session) {
+        localStorage.setItem('yoyopocket_v2_' + session, JSON.stringify(state));
+    }
+}
+
+// Enter key on login
+document.getElementById('loginPass').addEventListener('keypress', e => { if(e.key==='Enter') handleLogin(); });
+document.getElementById('loginUser').addEventListener('keypress', e => { if(e.key==='Enter') document.getElementById('loginPass').focus(); });
+
 // ===== INIT =====
 loadState();
 fillAllSelects();
@@ -1067,8 +1389,14 @@ renderCategories();
 renderRates();
 render();
 
-// Show confetti on first load if has money 🎊
-if (state.money.length > 0) setTimeout(launchConfetti, 600);
+// Check session
+const existingSession = sessionStorage.getItem('yp_session');
+if (existingSession) {
+    const accounts = getAccounts();
+    const acc = accounts[existingSession];
+    if (acc) enterApp(acc.username);
+}
+// If no session, login screen stays visible (default)
 </script>
 </body>
 </html>
