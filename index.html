@@ -1431,8 +1431,7 @@ function animConf() {
 }
 
 // ===== ENTER KEY =====
-['addAmt','addLbl'].forEach(id =>
-    document.getElementById(id).addEventListener('keypress', e => { if(e.key==='Enter') addMoney(); }));
+document.getElementById('addAmt').addEventListener('keypress', e => { if(e.key==='Enter') addMoney(); });
 ['expAmt','expDesc'].forEach(id =>
     document.getElementById(id).addEventListener('keypress', e => { if(e.key==='Enter') addExpense(); }));
 
