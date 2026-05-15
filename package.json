@@ -1,0 +1,12 @@
+{
+  "name": "yoyo-pocket",
+  "version": "1.0.0",
+  "description": "Yoyo Pocket - Gestion d'argent pour ados 🪙",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
