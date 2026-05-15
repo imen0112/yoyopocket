@@ -572,6 +572,78 @@
             75% { transform: rotate(4deg); }
         }
 
+        /* ===== CAGNOTTES ===== */
+        .cagnotte-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .cagnotte-card {
+            background: rgba(255,255,255,0.07);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 16px 14px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cagnotte-card:active { transform: scale(0.97); }
+
+        .cagnotte-card.featured {
+            border-color: rgba(254,228,64,0.35);
+            background: rgba(254,228,64,0.06);
+        }
+
+        .cagnotte-flag { font-size: 2rem; display: block; margin-bottom: 6px; }
+        .cagnotte-name { font-size: 0.65rem; font-weight: 900; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 1px; }
+        .cagnotte-bal { font-family: 'Fredoka One', cursive; font-size: 1.35rem; color: var(--green); margin: 4px 0 2px; line-height: 1; }
+        .cagnotte-equiv { font-size: 0.68rem; color: rgba(255,255,255,0.35); font-weight: 700; }
+
+        .cagnotte-del {
+            position: absolute;
+            top: 8px; right: 8px;
+            background: none; border: none;
+            font-size: 0.85rem; cursor: pointer;
+            color: rgba(255,255,255,0.2);
+            padding: 2px 5px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .cagnotte-del:hover { color: #ff6b9d; background: rgba(255,71,87,0.15); }
+
+        .cagnotte-add {
+            width: 100%;
+            background: rgba(255,255,255,0.07);
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 18px;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+            font-weight: 800;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            margin-bottom: 14px;
+        }
+        .cagnotte-add:hover { border-color: var(--yellow); color: var(--yellow); }
+
+        .transfer-success {
+            background: rgba(0,245,212,0.12);
+            border: 2px solid rgba(0,245,212,0.3);
+            border-radius: 14px;
+            padding: 12px;
+            text-align: center;
+            font-weight: 800;
+            color: var(--green);
+            font-size: 0.9rem;
+            margin-top: 12px;
+            display: none;
+        }
+
         /* ===== LOGIN SCREEN ===== */
         #loginScreen {
             position: fixed;
@@ -793,7 +865,7 @@
 <!-- ===== WALLET ===== -->
 <div class="section active" id="section-wallet">
     <div class="card">
-        <div class="card-title">➕ Ajouter de l'argent</div>
+        <div class="card-title">➕ Alimenter une cagnotte</div>
         <div class="form-row">
             <div class="iw f2">
                 <input type="number" id="addAmt" placeholder="Montant 💵" inputmode="decimal" step="0.01" min="0">
@@ -802,35 +874,22 @@
                 <select id="addCur"></select>
             </div>
         </div>
-        <div class="form-row">
-            <div class="iw full">
-                <input type="text" id="addLbl" placeholder="D'où ça vient? (cadeau, argent de poche...) 🎁" maxlength="40">
-            </div>
-        </div>
         <button class="btn btn-add" id="addBtn" onclick="addMoney()">
-            Hop dans la poche! 💸
+            Hop dans la cagnotte! 💸
         </button>
     </div>
 
-    <div class="card">
-        <div class="card-title">🏦 Mes poches</div>
-        <div id="moneyList">
-            <div class="empty">
-                <span class="e-icon">👻</span>
-                <p>Tes poches sont vides... Remplis-les!</p>
-            </div>
-        </div>
-    </div>
+    <div id="cagnotteGrid"></div>
 </div>
 
 <!-- ===== CONVERT ===== -->
 <div class="section" id="section-convert">
     <div class="card">
-        <div class="card-title">🔄 Convertisseur de devises</div>
-        <div class="sec-lbl">Montant à convertir</div>
+        <div class="card-title">🔄 Transférer entre cagnottes</div>
+        <div class="sec-lbl">De la cagnotte 👇</div>
         <div class="form-row">
             <div class="iw f2">
-                <input type="number" id="cvAmt" placeholder="0,00" inputmode="decimal" oninput="doConvert()">
+                <input type="number" id="cvAmt" placeholder="Montant" inputmode="decimal" oninput="doConvert()">
             </div>
             <div class="iw f1">
                 <select id="cvFrom" onchange="doConvert()"></select>
@@ -841,15 +900,19 @@
             <button class="swap-btn" onclick="swapCurrencies()">⇅</button>
             <div class="conv-line"></div>
         </div>
-        <div class="sec-lbl">Converti en</div>
+        <div class="sec-lbl">Vers la cagnotte 👆</div>
         <div class="iw" style="margin-bottom:14px">
             <select id="cvTo" onchange="doConvert()" style="width:100%"></select>
         </div>
         <div class="conv-result">
-            <div class="conv-res-label">Résultat ✨</div>
+            <div class="conv-res-label">Tu recevras ✨</div>
             <div class="conv-res-amount" id="cvResult">—</div>
-            <div class="conv-res-label" id="cvRate">Tape un montant pour convertir 👆</div>
+            <div class="conv-res-label" id="cvRate">Tape un montant pour voir 👆</div>
         </div>
+        <button class="btn btn-conv" style="margin-top:14px" onclick="transferCagnotte()">
+            Transférer! 🚀
+        </button>
+        <div class="transfer-success" id="transferSuccess">✅ Transfert effectué!</div>
     </div>
 
     <div class="card">
@@ -945,7 +1008,7 @@ const MSGS = [
 
 let state = {
     mainCurrency: 'EUR',
-    money: [],
+    wallets: {},   // { 'EUR': 150.00, 'TND': 500, ... }
     expenses: [],
     selCat: 0,
 };
@@ -1009,10 +1072,56 @@ function fillSelect(id, defaultCur) {
 }
 
 function fillAllSelects() {
-    fillSelect('addCur', 'EUR');
-    fillSelect('cvFrom', 'EUR');
-    fillSelect('cvTo', 'USD');
-    fillSelect('expCur', 'EUR');
+    fillSelect('addCur', 'TND');
+    fillSelect('expCur', 'TND');
+    fillConvertSelects();
+}
+
+function fillConvertSelects() {
+    // cvFrom: only active wallets (with money)
+    // cvTo: all currencies
+    const active = Object.keys(state.wallets).filter(c => (state.wallets[c] || 0) > 0);
+    const fromEl = document.getElementById('cvFrom');
+    const toEl   = document.getElementById('cvTo');
+    if (!fromEl || !toEl) return;
+
+    const prevFrom = fromEl.value;
+    const prevTo   = toEl.value;
+
+    fromEl.innerHTML = '';
+    if (!active.length) {
+        const o = document.createElement('option');
+        o.textContent = 'Aucune cagnotte 😅';
+        fromEl.appendChild(o);
+    } else {
+        active.forEach(code => {
+            const o = document.createElement('option');
+            o.value = code;
+            o.textContent = `${CUR[code].flag} ${code} — ${fmt(state.wallets[code], code)}`;
+            if (code === prevFrom) o.selected = true;
+            fromEl.appendChild(o);
+        });
+    }
+
+    toEl.innerHTML = '';
+    const featured = Object.entries(CUR).filter(([,d]) => d.featured);
+    const others   = Object.entries(CUR).filter(([,d]) => !d.featured);
+    featured.forEach(([code, d]) => {
+        const o = document.createElement('option');
+        o.value = code;
+        o.textContent = `⭐ ${d.flag} ${code} — ${d.name}`;
+        if (code === prevTo) o.selected = true;
+        toEl.appendChild(o);
+    });
+    const sep = document.createElement('option'); sep.disabled = true; sep.textContent = '──────────────';
+    toEl.appendChild(sep);
+    others.forEach(([code, d]) => {
+        const o = document.createElement('option');
+        o.value = code;
+        o.textContent = `${d.flag} ${code} — ${d.name}`;
+        if (code === prevTo) o.selected = true;
+        toEl.appendChild(o);
+    });
 }
 
 function renderMainCurrency() {
@@ -1062,30 +1171,36 @@ function renderRates() {
     });
 }
 
-// ===== RENDER LISTS =====
-function renderMoneyList() {
-    const c = document.getElementById('moneyList');
-    if (!state.money.length) {
-        c.innerHTML = `<div class="empty"><span class="e-icon">👻</span><p>Tes poches sont vides... Remplis-les!</p></div>`;
+// ===== RENDER CAGNOTTES =====
+function renderCagnottes() {
+    const container = document.getElementById('cagnotteGrid');
+    const active = Object.entries(state.wallets).filter(([,b]) => b > 0);
+
+    if (!active.length) {
+        container.innerHTML = `<div class="card"><div class="empty"><span class="e-icon">👻</span><p>Aucune cagnotte... Ajoute de l'argent!</p></div></div>`;
         return;
     }
-    c.innerHTML = '';
-    state.money.forEach((item, i) => {
-        const d = document.createElement('div');
-        d.className = 'list-item slide-in';
-        const inMain = cvt(item.amount, item.currency, state.mainCurrency);
-        d.innerHTML = `
-            <div class="list-left">
-                <div class="list-icon icon-money">💰</div>
-                <div>
-                    <div class="item-main green">${fmt(item.amount, item.currency)}</div>
-                    <div class="item-sub">${item.label || 'Sans description'} · ≈ ${fmt(inMain, state.mainCurrency)}</div>
-                </div>
-            </div>
-            <button class="del-btn" onclick="delMoney(${i})">🗑️</button>
+
+    container.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'cagnotte-grid';
+
+    active.forEach(([code, balance]) => {
+        const d = CUR[code];
+        const inMain = cvt(balance, code, state.mainCurrency);
+        const card = document.createElement('div');
+        card.className = `cagnotte-card${d.featured ? ' featured' : ''} slide-in`;
+        card.innerHTML = `
+            <button class="cagnotte-del" onclick="delCagnotte('${code}')">✕</button>
+            <span class="cagnotte-flag">${d.flag}</span>
+            <div class="cagnotte-name">${d.name}</div>
+            <div class="cagnotte-bal">${fmt(balance, code)}</div>
+            <div class="cagnotte-equiv">≈ ${fmt(inMain, state.mainCurrency)}</div>
         `;
-        c.appendChild(d);
+        grid.appendChild(card);
     });
+
+    container.appendChild(grid);
 }
 
 function renderExpenses() {
@@ -1120,17 +1235,15 @@ function renderExpenses() {
 }
 
 function renderBalance() {
-    const totalMonEUR = state.money.reduce((s, i) => s + toEUR(i.amount, i.currency), 0);
+    const totalWalEUR = Object.entries(state.wallets).reduce((s, [cur, bal]) => s + toEUR(bal, cur), 0);
     const totalExpEUR = state.expenses.reduce((s, i) => s + toEUR(i.amount, i.currency), 0);
-    const netEUR = totalMonEUR - totalExpEUR;
+    const netEUR = totalWalEUR - totalExpEUR;
 
     const mc = state.mainCurrency;
     const netMain = fromEUR(netEUR, mc);
     const expMain = fromEUR(totalExpEUR, mc);
 
-    const balEl = document.getElementById('balanceAmt');
-    balEl.textContent = fmt(netMain, mc);
-
+    document.getElementById('balanceAmt').textContent = fmt(netMain, mc);
     document.getElementById('balanceMsg').textContent = getMsg(netMain);
 
     const bbTotal = document.getElementById('bbTotal');
@@ -1142,23 +1255,28 @@ function renderBalance() {
 function render() {
     renderBalance();
     renderMainCurrency();
-    renderMoneyList();
+    renderCagnottes();
     renderExpenses();
+    fillConvertSelects();
 }
 
 // ===== ACTIONS =====
 function addMoney() {
     const amt = parseFloat(document.getElementById('addAmt').value);
     const cur = document.getElementById('addCur').value;
-    const lbl = document.getElementById('addLbl').value.trim();
     if (!amt || amt <= 0) { shakeEl('addAmt'); return; }
-    state.money.push({ amount: amt, currency: cur, label: lbl, date: Date.now() });
+    state.wallets[cur] = (state.wallets[cur] || 0) + amt;
     saveState();
     render();
     document.getElementById('addAmt').value = '';
-    document.getElementById('addLbl').value = '';
     launchConfetti();
     bounce('addBtn');
+}
+
+function delCagnotte(cur) {
+    delete state.wallets[cur];
+    saveState();
+    render();
 }
 
 function addExpense() {
@@ -1175,23 +1293,24 @@ function addExpense() {
     bounce('expBtn');
 }
 
-function delMoney(i) { state.money.splice(i, 1); saveState(); render(); }
 function delExpense(i) { state.expenses.splice(i, 1); saveState(); render(); }
 
-// ===== CONVERTER =====
+// ===== CONVERTER / TRANSFERT =====
 function doConvert() {
     const amt = parseFloat(document.getElementById('cvAmt').value);
     const from = document.getElementById('cvFrom').value;
-    const to = document.getElementById('cvTo').value;
-    if (!amt || isNaN(amt)) {
+    const to   = document.getElementById('cvTo').value;
+    if (!amt || isNaN(amt) || !CUR[from] || !CUR[to]) {
         document.getElementById('cvResult').textContent = '—';
-        document.getElementById('cvRate').textContent = 'Tape un montant pour convertir 👆';
+        document.getElementById('cvRate').textContent = 'Tape un montant pour voir 👆';
         return;
     }
     const res = cvt(amt, from, to);
+    const bal = state.wallets[from] || 0;
     document.getElementById('cvResult').textContent = fmt(res, to);
     const r1 = cvt(1, from, to);
-    document.getElementById('cvRate').textContent = `1 ${CUR[from].sym} = ${r1.toFixed(4)} ${CUR[to].sym}`;
+    const warning = amt > bal ? ` ⚠️ Solde insuffisant (${fmt(bal, from)})` : '';
+    document.getElementById('cvRate').textContent = `1 ${CUR[from].sym} = ${r1.toFixed(4)} ${CUR[to].sym}${warning}`;
 }
 
 function swapCurrencies() {
@@ -1199,6 +1318,34 @@ function swapCurrencies() {
     const t = document.getElementById('cvTo');
     [f.value, t.value] = [t.value, f.value];
     doConvert();
+}
+
+function transferCagnotte() {
+    const amt  = parseFloat(document.getElementById('cvAmt').value);
+    const from = document.getElementById('cvFrom').value;
+    const to   = document.getElementById('cvTo').value;
+    if (!amt || amt <= 0 || !CUR[from] || !CUR[to]) { shakeEl('cvAmt'); return; }
+    const bal = state.wallets[from] || 0;
+    if (amt > bal) { shakeEl('cvAmt'); return; }
+    if (from === to) { shakeEl('cvAmt'); return; }
+
+    const converted = cvt(amt, from, to);
+    state.wallets[from] = bal - amt;
+    if (state.wallets[from] <= 0) delete state.wallets[from];
+    state.wallets[to] = (state.wallets[to] || 0) + converted;
+
+    saveState();
+    render();
+    document.getElementById('cvAmt').value = '';
+    document.getElementById('cvResult').textContent = '—';
+
+    const ok = document.getElementById('transferSuccess');
+    ok.textContent = `✅ ${fmt(amt, from)} → ${fmt(converted, to)}`;
+    ok.style.display = 'block';
+    setTimeout(() => { ok.style.display = 'none'; }, 3000);
+
+    showEmoji('🚀');
+    bounce('addBtn');
 }
 
 // ===== TABS =====
@@ -1373,9 +1520,9 @@ function enterApp(username) {
     if (saved) {
         try { Object.assign(state, JSON.parse(saved)); } catch(e) {}
     } else {
-        state.money = [];
+        state.wallets = {};
         state.expenses = [];
-        state.mainCurrency = 'EUR';
+        state.mainCurrency = 'TND';
         state.selCat = 0;
     }
     fillAllSelects();
@@ -1387,7 +1534,7 @@ function enterApp(username) {
 
 function logout() {
     sessionStorage.removeItem('yp_session');
-    state.money = [];
+    state.wallets = {};
     state.expenses = [];
     document.getElementById('loginScreen').classList.remove('hidden');
     document.getElementById('loginUser').value = '';
