@@ -1517,7 +1517,7 @@ function enterApp(username) {
     renderCategories();
     renderRates();
     render();
-    if (state.money.length > 0) setTimeout(launchConfetti, 600);
+    if (Object.keys(state.wallets).length > 0) setTimeout(launchConfetti, 600);
 }
 
 function logout() {
