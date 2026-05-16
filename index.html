@@ -970,18 +970,19 @@
 
 <script>
 // ===== CURRENCIES =====
+// Taux XE.com — mis à jour le 16/05/2026
 const CUR = {
-    TND: { sym: 'DT', name: 'Dinar tunisien',    flag: '🇹🇳', rate: 3.35,  featured: true },
-    CHF: { sym: 'Fr', name: 'Franc suisse',       flag: '🇨🇭', rate: 0.97,  featured: true },
-    EUR: { sym: '€',  name: 'Euro',               flag: '🇪🇺', rate: 1,     featured: true },
-    EGP: { sym: 'E£', name: 'Livre égyptienne',   flag: '🇪🇬', rate: 33.5,  featured: true },
-    USD: { sym: '$',  name: 'Dollar US',           flag: '🇺🇸', rate: 1.08 },
-    GBP: { sym: '£',  name: 'Livre sterling',      flag: '🇬🇧', rate: 0.86 },
-    MAD: { sym: 'DH', name: 'Dirham marocain',    flag: '🇲🇦', rate: 10.85 },
-    DZD: { sym: 'DA', name: 'Dinar algérien',      flag: '🇩🇿', rate: 145 },
-    CAD: { sym: 'C$', name: 'Dollar canadien',     flag: '🇨🇦', rate: 1.47 },
-    SAR: { sym: 'SR', name: 'Riyal saoudien',      flag: '🇸🇦', rate: 4.05 },
-    JPY: { sym: '¥',  name: 'Yen japonais',        flag: '🇯🇵', rate: 162 },
+    TND: { sym: 'DT', name: 'Dinar tunisien',    flag: '🇹🇳', rate: 3.38,   featured: true },
+    CHF: { sym: 'Fr', name: 'Franc suisse',       flag: '🇨🇭', rate: 0.91,   featured: true },
+    EUR: { sym: '€',  name: 'Euro',               flag: '🇪🇺', rate: 1,      featured: true },
+    EGP: { sym: 'E£', name: 'Livre égyptienne',   flag: '🇪🇬', rate: 61.50,  featured: true },
+    USD: { sym: '$',  name: 'Dollar US',           flag: '🇺🇸', rate: 1.16 },
+    GBP: { sym: '£',  name: 'Livre sterling',      flag: '🇬🇧', rate: 0.87 },
+    MAD: { sym: 'DH', name: 'Dirham marocain',    flag: '🇲🇦', rate: 10.73 },
+    DZD: { sym: 'DA', name: 'Dinar algérien',      flag: '🇩🇿', rate: 154.03 },
+    CAD: { sym: 'C$', name: 'Dollar canadien',     flag: '🇨🇦', rate: 1.60 },
+    SAR: { sym: 'SR', name: 'Riyal saoudien',      flag: '🇸🇦', rate: 4.36 },
+    JPY: { sym: '¥',  name: 'Yen japonais',        flag: '🇯🇵', rate: 184.51 },
 };
 
 const CATS = [
@@ -1038,13 +1039,23 @@ async function loadUserData(username) {
         if (data && Object.keys(data).length > 0) {
             Object.assign(state, data);
         } else {
+            // Try migrating from old account if defined
+            const acc = DEFAULT_ACCOUNTS[username];
+            if (acc && acc.migrateFrom) {
+                const res2 = await fetch(`/api/data/${acc.migrateFrom}`);
+                const old = await res2.json();
+                if (old && Object.keys(old).length > 0) {
+                    Object.assign(state, old);
+                    await saveState(); // save under new username
+                    return;
+                }
+            }
             state.wallets = {};
             state.expenses = [];
             state.mainCurrency = 'TND';
             state.selCat = 0;
         }
     } catch(e) {
-        // fallback to localStorage
         const s = localStorage.getItem('yp_' + username);
         if (s) Object.assign(state, JSON.parse(s));
     }
@@ -1471,7 +1482,7 @@ async function hashPassword(pwd) {
 
 const DEFAULT_ACCOUNTS = {
     'yoyo': { username: 'yoyo', pwd: 'youssef' },
-    'imen': { username: 'imen', pwd: '0112' },
+    'enzo': { username: 'enzo', pwd: 'enzolo', migrateFrom: 'imen' },
 };
 
 function getAccounts() {
