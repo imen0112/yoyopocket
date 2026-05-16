@@ -916,7 +916,7 @@
     </div>
 
     <div class="card">
-        <div class="card-title">📊 Taux vs Euro (1 €)</div>
+        <div class="card-title">📊 Taux vs Euro (1 €) <span id="ratesBadge" style="font-size:0.65rem;font-family:'Nunito',sans-serif;font-weight:700;color:rgba(255,255,255,0.4);margin-left:6px">⏳ Chargement...</span></div>
         <div id="ratesList"></div>
     </div>
 </div>
@@ -970,7 +970,7 @@
 
 <script>
 // ===== CURRENCIES =====
-// Taux XE.com — mis à jour le 16/05/2026
+// Taux live — mis à jour automatiquement via API
 const CUR = {
     TND: { sym: 'DT', name: 'Dinar tunisien',    flag: '🇹🇳', rate: 3.38,   featured: true },
     CHF: { sym: 'Fr', name: 'Franc suisse',       flag: '🇨🇭', rate: 0.91,   featured: true },
@@ -984,6 +984,31 @@ const CUR = {
     SAR: { sym: 'SR', name: 'Riyal saoudien',      flag: '🇸🇦', rate: 4.36 },
     JPY: { sym: '¥',  name: 'Yen japonais',        flag: '🇯🇵', rate: 184.51 },
 };
+
+async function fetchLiveRates() {
+    try {
+        const res = await fetch('https://api.exchangerate-api.com/v4/latest/EUR');
+        const data = await res.json();
+        if (!data.rates) return;
+        Object.keys(CUR).forEach(code => {
+            if (code === 'EUR') return;
+            if (data.rates[code]) {
+                CUR[code].rate = data.rates[code];
+            }
+        });
+        // Update rates display if visible
+        renderRates();
+        render();
+        // Show live badge
+        const badge = document.getElementById('ratesBadge');
+        if (badge) {
+            const d = new Date(data.time_last_updated * 1000);
+            badge.textContent = `🟢 Live · ${d.toLocaleDateString('fr-FR')}`;
+        }
+    } catch(e) {
+        console.log('Taux live indisponibles, taux de secours utilisés');
+    }
+}
 
 const CATS = [
     { icon: '🍕', name: 'Bouffe' },
@@ -1546,6 +1571,7 @@ async function enterApp(username) {
     renderRates();
     render();
     if (Object.keys(state.wallets || {}).length > 0) setTimeout(launchConfetti, 600);
+    fetchLiveRates(); // fetch live rates in background
 }
 
 function logout() {
