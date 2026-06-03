@@ -70,6 +70,41 @@ http.createServer((req, res) => {
         return;
     }
 
+    // API: POST transfer between users
+    if (req.method === 'POST' && pathname === '/api/transfer') {
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', () => {
+            try {
+                const { from, to, currency, amount } = JSON.parse(body);
+                const amt = parseFloat(amount);
+                if (!from || !to || !currency || !amt || amt <= 0 || from === to) {
+                    res.writeHead(400); res.end('{"ok":false,"error":"invalid"}'); return;
+                }
+                const data = loadData();
+                const fromData = data[from] || { wallets: {} };
+                const toData   = data[to]   || { wallets: {}, expenses: [], mainCurrency: 'TND' };
+                fromData.wallets = fromData.wallets || {};
+                toData.wallets   = toData.wallets   || {};
+                const fromBal = fromData.wallets[currency] || 0;
+                if (fromBal < amt - 0.001) {
+                    res.writeHead(400); res.end('{"ok":false,"error":"insufficient"}'); return;
+                }
+                fromData.wallets[currency] = fromBal - amt;
+                if (fromData.wallets[currency] <= 0.001) delete fromData.wallets[currency];
+                toData.wallets[currency] = (toData.wallets[currency] || 0) + amt;
+                data[from] = fromData;
+                data[to]   = toData;
+                saveData(data);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: true }));
+            } catch(e) {
+                res.writeHead(500); res.end('{"ok":false}');
+            }
+        });
+        return;
+    }
+
     // Static files
     let filePath = path.join(__dirname, pathname === '/' ? 'index.html' : pathname);
     fs.readFile(filePath, (err, data) => {

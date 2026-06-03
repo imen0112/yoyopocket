@@ -860,6 +860,7 @@
     <button class="tab active" onclick="switchTab('wallet', this)">💰 Argent</button>
     <button class="tab" onclick="switchTab('convert', this)">🔄 Convertir</button>
     <button class="tab" onclick="switchTab('expenses', this)">📝 Dépenses</button>
+    <button class="tab" onclick="switchTab('send', this)">📤 Envoyer</button>
 </div>
 
 <!-- ===== WALLET ===== -->
@@ -953,6 +954,35 @@
                 <p>Aucune dépense! T'es un champion! 💪</p>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- ===== SEND TO USER ===== -->
+<div class="section" id="section-send">
+    <div class="card">
+        <div class="card-title" id="sendTitle">📤 Envoyer de l'argent</div>
+        <div class="sec-lbl" id="sendSubtitle">À qui tu envoies? 👇</div>
+
+        <div class="sec-lbl" style="margin-top:4px">Depuis quelle cagnotte? 💰</div>
+        <div class="form-row">
+            <div class="iw f2">
+                <input type="number" id="sendAmt" placeholder="Montant" inputmode="decimal" step="0.01" min="0" oninput="updateSendInfo()">
+            </div>
+            <div class="iw f1">
+                <select id="sendCur" onchange="updateSendInfo()"></select>
+            </div>
+        </div>
+
+        <div id="sendBalInfo" style="display:none;background:rgba(255,255,255,0.05);border-radius:14px;padding:12px 14px;margin-bottom:14px;font-family:'Nunito',sans-serif;">
+            <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);font-weight:700;margin-bottom:4px">Disponible dans cette cagnotte</div>
+            <div id="sendBalAmt" style="font-size:1.1rem;font-weight:900;color:var(--yellow)"></div>
+            <div id="sendWarning" style="font-size:0.75rem;font-weight:800;color:#ff6b6b;margin-top:4px;display:none">⚠️ Pas assez d'argent!</div>
+        </div>
+
+        <button class="btn btn-add" id="sendBtn" onclick="sendToUser()">
+            Envoyer! 🚀
+        </button>
+        <div class="transfer-success" id="sendSuccess">✅ Argent envoyé!</div>
     </div>
 </div>
 
@@ -1320,6 +1350,7 @@ function render() {
     renderCagnottes();
     renderExpenses();
     fillConvertSelects();
+    fillSendSelect();
 }
 
 // ===== ACTIONS =====
@@ -1408,6 +1439,106 @@ function transferCagnotte() {
 
     showEmoji('🚀');
     bounce('addBtn');
+}
+
+// ===== SEND TO USER =====
+const OTHER_USER = { 'yoyo': 'enzo', 'enzo': 'yoyo' };
+
+function fillSendSelect() {
+    const sel = document.getElementById('sendCur');
+    if (!sel) return;
+    const prev = sel.value;
+    sel.innerHTML = '';
+    const active = Object.keys(state.wallets).filter(c => (state.wallets[c] || 0) > 0.001);
+    if (!active.length) {
+        const o = document.createElement('option');
+        o.textContent = 'Aucune cagnotte 😅';
+        sel.appendChild(o);
+    } else {
+        active.forEach(code => {
+            const o = document.createElement('option');
+            o.value = code;
+            o.textContent = `${CUR[code].flag} ${code} — ${fmt(state.wallets[code], code)}`;
+            if (code === prev) o.selected = true;
+            sel.appendChild(o);
+        });
+    }
+    updateSendInfo();
+}
+
+function updateSendInfo() {
+    const sel = document.getElementById('sendCur');
+    const info = document.getElementById('sendBalInfo');
+    const balEl = document.getElementById('sendBalAmt');
+    const warnEl = document.getElementById('sendWarning');
+    const amt = parseFloat(document.getElementById('sendAmt').value) || 0;
+    if (!sel || !sel.value || !CUR[sel.value]) { if(info) info.style.display='none'; return; }
+    const cur = sel.value;
+    const bal = state.wallets[cur] || 0;
+    if (!bal) { info.style.display='none'; return; }
+    info.style.display = 'block';
+    balEl.textContent = fmt(bal, cur);
+    if (amt > 0 && amt > bal) {
+        warnEl.style.display = 'block';
+        balEl.style.color = '#ff6b6b';
+    } else {
+        warnEl.style.display = 'none';
+        balEl.style.color = 'var(--yellow)';
+    }
+}
+
+async function sendToUser() {
+    const amt = parseFloat(document.getElementById('sendAmt').value);
+    const cur = document.getElementById('sendCur').value;
+    const recipient = OTHER_USER[currentUser];
+
+    if (!amt || amt <= 0 || !cur || !CUR[cur]) { shakeEl('sendAmt'); return; }
+    const bal = state.wallets[cur] || 0;
+    if (amt > bal + 0.001) { shakeEl('sendAmt'); return; }
+    if (!recipient) { shakeEl('sendBtn'); return; }
+
+    // Disable button during request
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+    btn.textContent = 'Envoi en cours... ⏳';
+
+    try {
+        const res = await fetch('/api/transfer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ from: currentUser, to: recipient, currency: cur, amount: amt })
+        });
+        const json = await res.json();
+        btn.disabled = false;
+        btn.textContent = 'Envoyer! 🚀';
+
+        if (!json.ok) {
+            if (json.error === 'insufficient') shakeEl('sendAmt');
+            return;
+        }
+
+        // Update local wallet
+        state.wallets[cur] = bal - amt;
+        if (state.wallets[cur] <= 0.001) delete state.wallets[cur];
+        saveState();
+        render();
+
+        document.getElementById('sendAmt').value = '';
+        updateSendInfo();
+
+        const OTHER_NAMES = { 'yoyo': 'Enzo', 'enzo': 'Yoyo' };
+        const ok = document.getElementById('sendSuccess');
+        ok.textContent = `✅ ${fmt(amt, cur)} envoyé à ${OTHER_NAMES[currentUser] || recipient}! 🎉`;
+        ok.style.display = 'block';
+        setTimeout(() => { ok.style.display = 'none'; }, 3500);
+
+        showEmoji('💸');
+        bounce('sendBtn');
+    } catch(e) {
+        btn.disabled = false;
+        btn.textContent = 'Envoyer! 🚀';
+        shakeEl('sendAmt');
+    }
 }
 
 // ===== TABS =====
@@ -1565,6 +1696,11 @@ async function enterApp(username) {
     currentUser = username.toLowerCase();
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('ownerName').textContent = username;
+    // Set send title
+    const OTHER_NAMES = { 'yoyo': 'Enzo', 'enzo': 'Yoyo' };
+    const recipientName = OTHER_NAMES[currentUser.toLowerCase()] || 'l\'autre';
+    document.getElementById('sendTitle').textContent = `📤 Envoyer à ${recipientName}`;
+    document.getElementById('sendSubtitle').textContent = `Tu envoies de l\'argent à ${recipientName} 💸`;
     await loadUserData(currentUser);
     fillAllSelects();
     renderCategories();
