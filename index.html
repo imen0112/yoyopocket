@@ -1314,7 +1314,6 @@ function renderCagnottes() {
         const card = document.createElement('div');
         card.className = `cagnotte-card${d.featured ? ' featured' : ''} slide-in`;
         card.innerHTML = `
-            <button class="cagnotte-del" onclick="delCagnotte('${code}')">✕</button>
             <span class="cagnotte-flag">${d.flag}</span>
             <div class="cagnotte-name">${d.name}</div>
             <div class="cagnotte-bal">${fmt(balance, code)}</div>
@@ -1398,11 +1397,6 @@ function addMoney() {
     bounce('addBtn');
 }
 
-function delCagnotte(cur) {
-    delete state.wallets[cur];
-    saveState();
-    render();
-}
 
 function addExpense() {
     const amt = parseFloat(document.getElementById('expAmt').value);
