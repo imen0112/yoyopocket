@@ -869,6 +869,7 @@
 <div class="header">
     <div class="header-title">Yoyo Pocket 🪙</div>
     <div class="header-sub">L'empire financier de <span id="ownerName">la star</span> 👑</div>
+    <div id="syncBadge" style="position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(0,245,212,0.15);border:1px solid rgba(0,245,212,0.3);border-radius:20px;padding:3px 10px;font-size:0.65rem;font-weight:800;color:var(--green);opacity:0;transition:opacity 0.5s;pointer-events:none;">🔄 Synced</div>
     <button class="logout-btn" onclick="logout()" title="Se déconnecter">🚪</button>
 </div>
 
@@ -1775,9 +1776,48 @@ async function enterApp(username) {
     render();
     if (Object.keys(state.wallets || {}).length > 0) setTimeout(launchConfetti, 600);
     fetchLiveRates(); // fetch live rates in background
+    startAutoRefresh();
+}
+
+// ===== AUTO REFRESH (sync between users) =====
+let autoRefreshTimer = null;
+function startAutoRefresh() {
+    if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+    autoRefreshTimer = setInterval(async () => {
+        if (!currentUser) return;
+        try {
+            const res = await fetch(`/api/data/${currentUser}`);
+            const fresh = await res.json();
+            if (fresh && Object.keys(fresh).length > 0) {
+                // Only update wallets and transfers from server (don't overwrite local prefs)
+                let changed = false;
+                if (JSON.stringify(fresh.wallets) !== JSON.stringify(state.wallets)) {
+                    state.wallets = fresh.wallets || {};
+                    changed = true;
+                }
+                if (JSON.stringify(fresh.transfers) !== JSON.stringify(state.transfers)) {
+                    state.transfers = fresh.transfers || [];
+                    changed = true;
+                }
+                if (changed) {
+                    render();
+                    // Show subtle notification
+                    showSyncBadge();
+                }
+            }
+        } catch(e) { /* silently ignore */ }
+    }, 30000); // every 30 seconds
+}
+
+function showSyncBadge() {
+    let badge = document.getElementById('syncBadge');
+    if (!badge) return;
+    badge.style.opacity = '1';
+    setTimeout(() => { badge.style.opacity = '0'; }, 2500);
 }
 
 function logout() {
+    if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
     localStorage.removeItem('yp_session');
     currentUser = null;
     state.wallets = {};
