@@ -1476,11 +1476,11 @@ function renderTransferHistory() {
     if (!history.length) { card.style.display = 'none'; return; }
     card.style.display = 'block';
 
-    const OTHER_NAMES = { 'yoyo': 'Enzo', 'enzo': 'Yoyo' };
+    const DISPLAY_NAMES = { 'yoyo': 'Yoyo', 'enzo': 'Enzo' };
 
     list.innerHTML = history.map(t => {
         const isSent = t.direction === 'sent';
-        const otherName = OTHER_NAMES[t.other] || t.other;
+        const otherName = DISPLAY_NAMES[t.other] || t.other;
         const d = new Date(t.ts);
         const dateStr = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'short' }) +
                         ' · ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
