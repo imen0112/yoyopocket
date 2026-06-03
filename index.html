@@ -943,7 +943,13 @@
     </div>
 
     <div class="card">
-        <div class="card-title">📊 Taux vs Euro (1 €) <span id="ratesBadge" style="font-size:0.65rem;font-family:'Nunito',sans-serif;font-weight:700;color:rgba(255,255,255,0.4);margin-left:6px">⏳ Chargement...</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <div class="card-title" style="margin-bottom:0">📊 Taux de change <span id="ratesBadge" style="font-size:0.65rem;font-family:'Nunito',sans-serif;font-weight:700;color:rgba(255,255,255,0.4);margin-left:6px">⏳ Chargement...</span></div>
+            <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:0.72rem;font-weight:800;color:rgba(255,255,255,0.4)">Base :</span>
+                <select id="ratesBase" onchange="renderRates()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.8rem;padding:5px 8px;cursor:pointer"></select>
+            </div>
+        </div>
         <div id="ratesList"></div>
     </div>
 </div>
@@ -1274,10 +1280,41 @@ function renderCategories() {
     });
 }
 
+function fillRatesBase() {
+    const sel = document.getElementById('ratesBase');
+    if (!sel || sel.options.length > 0) return; // already filled
+    const featured = Object.entries(CUR).filter(([,d]) => d.featured);
+    const others   = Object.entries(CUR).filter(([,d]) => !d.featured);
+    featured.forEach(([code, d]) => {
+        const o = document.createElement('option');
+        o.value = code;
+        o.textContent = `${d.flag} ${code}`;
+        if (code === 'EUR') o.selected = true;
+        sel.appendChild(o);
+    });
+    const sep = document.createElement('option'); sep.disabled = true; sep.textContent = '──────────';
+    sel.appendChild(sep);
+    others.forEach(([code, d]) => {
+        const o = document.createElement('option');
+        o.value = code;
+        o.textContent = `${d.flag} ${code}`;
+        sel.appendChild(o);
+    });
+}
+
 function renderRates() {
+    fillRatesBase();
+    const sel = document.getElementById('ratesBase');
+    const base = sel ? (sel.value || 'EUR') : 'EUR';
+    const baseData = CUR[base];
+    const baseInEUR = 1 / baseData.rate; // 1 unit of base = X EUR
+
     const c = document.getElementById('ratesList');
     c.innerHTML = '';
     Object.entries(CUR).forEach(([code, d]) => {
+        if (code === base) return; // skip base itself
+        const rate = baseInEUR * d.rate; // 1 base = X of this currency
+        const rateDisplay = rate >= 100 ? rate.toFixed(0) : rate >= 1 ? rate.toFixed(2) : rate.toFixed(4);
         const r = document.createElement('div');
         r.className = 'rate-item';
         r.innerHTML = `
@@ -1288,7 +1325,7 @@ function renderRates() {
                     <div class="rate-code">${code}</div>
                 </div>
             </div>
-            <div class="rate-val">1 € = ${d.rate} ${d.sym}</div>
+            <div class="rate-val">1 ${baseData.sym} = ${rateDisplay} ${d.sym}</div>
         `;
         c.appendChild(r);
     });
