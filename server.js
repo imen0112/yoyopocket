@@ -93,6 +93,17 @@ http.createServer((req, res) => {
                 fromData.wallets[currency] = fromBal - amt;
                 if (fromData.wallets[currency] <= 0.001) delete fromData.wallets[currency];
                 toData.wallets[currency] = (toData.wallets[currency] || 0) + amt;
+
+                // Save transfer history for both users
+                const ts = Date.now();
+                fromData.transfers = fromData.transfers || [];
+                toData.transfers   = toData.transfers   || [];
+                fromData.transfers.unshift({ ts, amount: amt, currency, direction: 'sent',     other: to });
+                toData.transfers.unshift(  { ts, amount: amt, currency, direction: 'received', other: from });
+                // Keep last 50 entries
+                if (fromData.transfers.length > 50) fromData.transfers.length = 50;
+                if (toData.transfers.length   > 50) toData.transfers.length   = 50;
+
                 data[from] = fromData;
                 data[to]   = toData;
                 saveData(data);

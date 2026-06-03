@@ -631,6 +631,31 @@
         }
         .cagnotte-add:hover { border-color: var(--yellow); color: var(--yellow); }
 
+        /* Transfer history */
+        .transfer-hist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .transfer-hist-item:last-child { border-bottom: none; }
+        .th-icon {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .th-icon.sent     { background: rgba(241,91,181,0.18); }
+        .th-icon.received { background: rgba(0,245,212,0.18); }
+        .th-body { flex: 1; min-width: 0; }
+        .th-label { font-size: 0.78rem; font-weight: 800; color: rgba(255,255,255,0.5); }
+        .th-amt   { font-size: 1rem; font-weight: 900; font-family: 'Fredoka One', sans-serif; }
+        .th-amt.sent     { color: var(--pink); }
+        .th-amt.received { color: var(--green); }
+        .th-date  { font-size: 0.68rem; color: rgba(255,255,255,0.3); font-weight: 700; margin-top: 2px; }
+
         .transfer-success {
             background: rgba(0,245,212,0.12);
             border: 2px solid rgba(0,245,212,0.3);
@@ -983,6 +1008,11 @@
             Envoyer! 🚀
         </button>
         <div class="transfer-success" id="sendSuccess">✅ Argent envoyé!</div>
+    </div>
+
+    <div class="card" id="transferHistCard" style="display:none">
+        <div class="card-title">🕐 Historique des transferts</div>
+        <div id="transferHistList"></div>
     </div>
 </div>
 
@@ -1351,6 +1381,7 @@ function render() {
     renderExpenses();
     fillConvertSelects();
     fillSendSelect();
+    renderTransferHistory();
 }
 
 // ===== ACTIONS =====
@@ -1441,6 +1472,39 @@ function transferCagnotte() {
     bounce('addBtn');
 }
 
+// ===== TRANSFER HISTORY =====
+function renderTransferHistory() {
+    const list = document.getElementById('transferHistList');
+    const card = document.getElementById('transferHistCard');
+    if (!list || !card) return;
+    const history = state.transfers || [];
+    if (!history.length) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+
+    const OTHER_NAMES = { 'yoyo': 'Enzo', 'enzo': 'Yoyo' };
+
+    list.innerHTML = history.map(t => {
+        const isSent = t.direction === 'sent';
+        const otherName = OTHER_NAMES[t.other] || t.other;
+        const d = new Date(t.ts);
+        const dateStr = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'short' }) +
+                        ' · ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+        const sign = isSent ? '−' : '+';
+        const curData = CUR[t.currency] || { sym: t.currency, flag: '' };
+        const amtFmt = `${sign}${t.amount.toFixed(2).replace('.',',')} ${curData.sym}`;
+        const label = isSent ? `Envoyé à ${otherName}` : `Reçu de ${otherName}`;
+        const icon  = isSent ? '📤' : '📥';
+        return `<div class="transfer-hist-item">
+            <div class="th-icon ${t.direction}">${icon}</div>
+            <div class="th-body">
+                <div class="th-label">${label} ${curData.flag}</div>
+                <div class="th-amt ${t.direction}">${amtFmt}</div>
+            </div>
+            <div class="th-date">${dateStr}</div>
+        </div>`;
+    }).join('');
+}
+
 // ===== SEND TO USER =====
 const OTHER_USER = { 'yoyo': 'enzo', 'enzo': 'yoyo' };
 
@@ -1517,9 +1581,12 @@ async function sendToUser() {
             return;
         }
 
-        // Update local wallet
+        // Update local wallet + transfer history
         state.wallets[cur] = bal - amt;
         if (state.wallets[cur] <= 0.001) delete state.wallets[cur];
+        state.transfers = state.transfers || [];
+        state.transfers.unshift({ ts: Date.now(), amount: amt, currency: cur, direction: 'sent', other: recipient });
+        if (state.transfers.length > 50) state.transfers.length = 50;
         saveState();
         render();
 
