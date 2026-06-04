@@ -1906,6 +1906,25 @@ const GOAL_PROGRESSIONS = {
 
 // ===== GOALS =====
 
+// ── Paliers progressifs infinis par devise ──
+const MILESTONE_STEPS = {
+    TND: [50,100,200,500,1000,2000,3000,5000,10000,20000,50000],
+    EUR: [10,20,50,80,100,150,200,300,500,750,1000,2000,5000,10000],
+    EGP: [200,500,1000,2000,5000,10000,20000,50000,100000,200000],
+    CHF: [10,20,50,80,100,150,200,300,500,750,1000,2000,5000],
+};
+const M_ICONS  = ['🌱','⭐','🌟','💫','🥉','🥈','🥇','🏆','💎','👑','🔥','🚀','🌈','⚡','🔮'];
+const M_CFG    = { TND:{sym:'DT',flag:'🇹🇳'}, EUR:{sym:'€',flag:'💶'}, EGP:{sym:'E£',flag:'🇪🇬'}, CHF:{sym:'Fr',flag:'🇨🇭'} };
+
+function getMilestoneDef(cur, idx) {
+    const steps = MILESTONE_STEPS[cur]; if (!steps || idx >= steps.length) return null;
+    const c = M_CFG[cur], val = steps[idx];
+    const label = val>=1000000?(val/1000000)+'M':val>=1000?(val/1000).toFixed(val%1000===0?0:1)+'K':val;
+    return { id:`cur_${cur}_${idx}`, icon:M_ICONS[idx]||'👑', name:`${c.flag} ${label} ${c.sym}`,
+             desc:`Avoir ${val.toLocaleString('fr-FR')} ${c.sym} dans ta cagnotte ${cur}`,
+             currency:cur, target:val, level:idx };
+}
+
 const BADGES_DEF = [
     // Premiers pas
     { id: 'first_expense',  icon: '🛍️', name: 'Premier achat!',        desc: 'Ta première dépense enregistrée' },
@@ -2003,6 +2022,19 @@ function checkBadges() {
     if ((state.wallets.TND||0)>0 && (state.wallets.EUR||0)>0)   tryAdd('diversifie');
     if (['TND','CHF','EUR','EGP'].every(c=>(state.wallets[c]||0)>0)) tryAdd('all_featured');
 
+    // Vérifier paliers de devises (infinis)
+    Object.keys(MILESTONE_STEPS).forEach(cur => {
+        const bal = state.wallets[cur] || 0;
+        MILESTONE_STEPS[cur].forEach((val, i) => {
+            const mid = `cur_${cur}_${i}`;
+            if (bal >= val && !state.badges.includes(mid)) {
+                state.badges.push(mid);
+                changed = true;
+                showBadgeNotif(getMilestoneDef(cur, i), false);
+            }
+        });
+    });
+
     // Marquer les badges gagnés mais plus actifs
     state.badges.forEach(id => {
         if (!isBadgeCurrentlyActive(id) && !state.badgesInactive.includes(id)) {
@@ -2015,7 +2047,8 @@ function checkBadges() {
 }
 
 function showBadgeDetail(id, isEarned, isHistoric) {
-    const def = BADGES_DEF.find(b=>b.id===id);
+    let def = BADGES_DEF.find(b=>b.id===id);
+    if (!def && id.startsWith('cur_')) { const p=id.split('_'); def=getMilestoneDef(p[1],+p[2]); }
     if (!def) return;
     const modal = document.getElementById('badgeModal');
     document.getElementById('badgeModalIcon').textContent = def.icon;
@@ -2079,22 +2112,35 @@ function renderBadges() {
         html += `<div class="empty" style="margin-bottom:16px"><span class="e-icon">🥚</span><p>Gagne ton premier badge!</p></div>`;
     }
 
-    // ── Grille: badges activité ──
+    // ── Grille: tous les badges (earned + locked) ──
     const earnedActivity = earned.filter(id => !id.startsWith('cur_'));
-    const lockedActivity = locked;
-    const totalActivity = earnedActivity.length;
+    const lockedActivity = locked; // activity badges not yet earned
+    const totalEarned = earned.length;
 
-    html += `<div class="badge-section-label" style="color:rgba(155,93,229,0.7);margin-top:14px">🎖️ Badges activité (${totalActivity}/${BADGES_DEF.length})</div>`;
+    html += `<div class="badge-section-label" style="color:rgba(155,93,229,0.7);margin-top:14px">🎖️ Badges (${totalEarned} gagnés)</div>`;
     html += `<div class="badges-grid">`;
+
+    // Earned activity badges
     earnedActivity.forEach(id => {
         const def = BADGES_DEF.find(b=>b.id===id); if(!def) return;
         const isHist = inactive.includes(id);
         html += `<div class="badge-card unlocked" style="${isHist?'opacity:0.55':''};cursor:pointer" onclick="showBadgeDetail('${id}',true,${isHist})">
-            ${isHist ? '<div class="badge-hist-icon">🕐</div>' : ''}
+            ${isHist?'<div class="badge-hist-icon">🕐</div>':''}
             <div class="badge-card-icon">${def.icon}</div>
             <div class="badge-card-label">${def.name}</div>
         </div>`;
     });
+
+    // Earned currency milestones
+    earned.filter(id=>id.startsWith('cur_')).forEach(id => {
+        const [,cur,idx] = id.split('_'); const def = getMilestoneDef(cur, +idx); if(!def) return;
+        html += `<div class="badge-card unlocked" style="cursor:pointer" onclick="showBadgeDetail('${id}',true,false)">
+            <div class="badge-card-icon">${def.icon}</div>
+            <div class="badge-card-label">${def.name}</div>
+        </div>`;
+    });
+
+    // Locked activity badges
     lockedActivity.forEach(def => {
         html += `<div class="badge-card locked" style="cursor:pointer" onclick="showBadgeDetail('${def.id}',false,false)">
             <div class="badge-lock-icon">🔒</div>
@@ -2102,8 +2148,21 @@ function renderBadges() {
             <div class="badge-card-label">${def.name}</div>
         </div>`;
     });
-    html += `</div>`;
 
+    // Next milestone per currency (1 card per currency, the next unearned)
+    Object.keys(MILESTONE_STEPS).forEach(cur => {
+        const steps = MILESTONE_STEPS[cur];
+        const nextIdx = steps.findIndex((_,i) => !earned.includes(`cur_${cur}_${i}`));
+        if (nextIdx === -1) return; // all earned
+        const def = getMilestoneDef(cur, nextIdx); if(!def) return;
+        html += `<div class="badge-card locked" style="cursor:pointer" onclick="showBadgeDetail('${def.id}',false,false)">
+            <div class="badge-lock-icon">🔒</div>
+            <div class="badge-card-icon">${def.icon}</div>
+            <div class="badge-card-label">${def.name}</div>
+        </div>`;
+    });
+
+    html += `</div>`;
     c.innerHTML = html;
 }
 
