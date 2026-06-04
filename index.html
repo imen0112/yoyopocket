@@ -2558,7 +2558,7 @@ function startAutoRefresh() {
                 }
                 if (changed) {
                     render();
-                    // Show subtle notification
+                    checkBadges(); // vérifier nouveaux badges après mise à jour
                     showSyncBadge();
                 }
             }
