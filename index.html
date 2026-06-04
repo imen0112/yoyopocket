@@ -931,9 +931,10 @@
 </div>
 
 <!-- BADGE NOTIF -->
-<div class="badge-notif" id="badgeNotif">
+<div class="badge-notif" id="badgeNotif" onclick="document.getElementById('badgeNotif').classList.remove('show')">
     <div class="badge-notif-icon" id="badgeNotifIcon">🏆</div>
     <div class="badge-notif-text" id="badgeNotifText">Badge débloqué!</div>
+    <div style="margin-left:8px;opacity:0.6;font-size:0.8rem">✕</div>
 </div>
 
 <!-- ===== LOGIN SCREEN ===== -->
@@ -1712,9 +1713,11 @@ const BADGES_DEF = [
 
 function checkBadges() {
     state.badges = state.badges || [];
+    let newBadge = false;
     const add = (id) => {
         if (!state.badges.includes(id)) {
             state.badges.push(id);
+            newBadge = true;
             const def = BADGES_DEF.find(b => b.id === id);
             if (def) showBadgeNotif(def);
         }
@@ -1728,7 +1731,7 @@ function checkBadges() {
     if ((state.wallets.EUR||0) >= 100)                          add('euro_rich');
     const totalEUR = Object.entries(state.wallets).reduce((s,[c,b])=>s+toEUR(b,c),0);
     if (totalEUR >= 500)                                        add('whale');
-    saveState();
+    if (newBadge) saveState();
     renderBadges();
 }
 
