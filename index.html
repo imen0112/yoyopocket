@@ -1780,14 +1780,26 @@ function renderActivity() {
 
 // ===== GOALS =====
 const BADGES_DEF = [
-    { id: 'first_expense',  icon: '🛍️', name: 'Premier achat!',      desc: 'Ta première dépense enregistrée' },
-    { id: 'first_transfer', icon: '🚀', name: 'Premier transfert!',   desc: 'Tu as envoyé de l\'argent pour la première fois' },
-    { id: 'first_goal',     icon: '🎯', name: 'Objectif atteint!',    desc: 'Tu as atteint ton premier objectif' },
-    { id: 'rich_tnd',       icon: '🇹🇳', name: 'Millionnaire TND',    desc: 'Plus de 1 000 DT dans ta cagnotte TND' },
-    { id: 'swiss',          icon: '🇨🇭', name: 'Swiss Style',          desc: 'Plus de 100 CHF dans ta cagnotte CHF' },
-    { id: 'pharaon',        icon: '🏺', name: 'Pharaon!',             desc: 'Plus de 5 000 E£ dans ta cagnotte EGP' },
-    { id: 'euro_rich',      icon: '💶', name: 'Riche en Euro',        desc: 'Plus de 100 € dans ta cagnotte EUR' },
-    { id: 'whale',          icon: '🐋', name: 'La Baleine 🐋',        desc: 'Plus de 500€ au total toutes cagnottes' },
+    // Premiers pas
+    { id: 'first_expense',  icon: '🛍️', name: 'Premier achat!',        desc: 'Ta première dépense enregistrée' },
+    { id: 'first_transfer', icon: '🚀', name: 'Premier virement!',      desc: 'Tu as envoyé de l\'argent pour la première fois' },
+    { id: 'first_goal',     icon: '🎯', name: 'Objectif atteint!',      desc: 'Tu as atteint ton premier objectif d\'épargne' },
+    // Virements
+    { id: 'transfert_5',    icon: '🔄', name: 'Pro du virement',        desc: '5 transferts effectués — tu gères!' },
+    { id: 'transfert_10',   icon: '⚡', name: 'Flash virement',         desc: '10 transferts — expert confirmé!' },
+    // Épargne par devise
+    { id: 'euro_rich',      icon: '💶', name: 'Riche en Euro',          desc: 'Plus de 100 € dans ta cagnotte EUR' },
+    { id: 'rich_tnd',       icon: '🇹🇳', name: 'Millionnaire TND',      desc: 'Plus de 1 000 DT dans ta cagnotte TND' },
+    { id: 'swiss',          icon: '🇨🇭', name: 'Swiss Style',            desc: 'Plus de 100 CHF dans ta cagnotte CHF' },
+    { id: 'pharaon',        icon: '🏺', name: 'Pharaon!',               desc: 'Plus de 5 000 E£ dans ta cagnotte EGP' },
+    // Total global
+    { id: 'savings_50',     icon: '💪', name: 'Bon épargnant',          desc: 'Plus de 50€ au total — beau travail!' },
+    { id: 'savings_200',    icon: '🤑', name: 'Petit riche!',           desc: 'Plus de 200€ au total — respect!' },
+    { id: 'whale',          icon: '🐋', name: 'La Baleine',             desc: 'Plus de 500€ au total — t\'es immense!' },
+    // Multi-devises
+    { id: 'multi_currency', icon: '💳', name: 'Collectionneur',         desc: '3+ cagnottes actives en même temps' },
+    { id: 'diversifie',     icon: '🌍', name: 'Diversifié',             desc: 'Tu as du TND ET de l\'EUR — smart!' },
+    { id: 'all_featured',   icon: '👑', name: 'Le Grand Patron',        desc: 'Tu as du TND, CHF, EUR et EGP en même temps!' },
 ];
 
 function checkBadges() {
@@ -1801,15 +1813,26 @@ function checkBadges() {
             if (def) showBadgeNotif(def);
         }
     };
+    const transfers = state.transfers || [];
+    const sentCount = transfers.filter(t=>t.direction==='sent').length;
+    const totalEUR = Object.entries(state.wallets).reduce((s,[c,b])=>s+toEUR(b,c),0);
+    const activeWallets = Object.keys(state.wallets).filter(c=>(state.wallets[c]||0)>0);
+
     if (state.expenses.length >= 1)                             add('first_expense');
-    if ((state.transfers||[]).some(t=>t.direction==='sent'))    add('first_transfer');
+    if (sentCount >= 1)                                         add('first_transfer');
     if ((state.goals||[]).some(g=>g.done))                      add('first_goal');
+    if (sentCount >= 5)                                         add('transfert_5');
+    if (sentCount >= 10)                                        add('transfert_10');
+    if ((state.wallets.EUR||0) >= 100)                          add('euro_rich');
     if ((state.wallets.TND||0) >= 1000)                         add('rich_tnd');
     if ((state.wallets.CHF||0) >= 100)                          add('swiss');
     if ((state.wallets.EGP||0) >= 5000)                         add('pharaon');
-    if ((state.wallets.EUR||0) >= 100)                          add('euro_rich');
-    const totalEUR = Object.entries(state.wallets).reduce((s,[c,b])=>s+toEUR(b,c),0);
+    if (totalEUR >= 50)                                         add('savings_50');
+    if (totalEUR >= 200)                                        add('savings_200');
     if (totalEUR >= 500)                                        add('whale');
+    if (activeWallets.length >= 3)                              add('multi_currency');
+    if ((state.wallets.TND||0)>0 && (state.wallets.EUR||0)>0)  add('diversifie');
+    if (['TND','CHF','EUR','EGP'].every(c=>(state.wallets[c]||0)>0)) add('all_featured');
     if (newBadge) saveState();
     renderBadges();
 }
