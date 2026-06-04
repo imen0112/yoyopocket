@@ -1905,6 +1905,43 @@ const GOAL_PROGRESSIONS = {
 };
 
 // ===== GOALS =====
+// Paliers réalistes par devise (progressifs mais réalistes pour un enfant)
+const MILESTONE_STEPS = {
+    TND: [50, 100, 200, 500, 1000, 2000, 3000, 5000, 10000, 20000, 50000],
+    EUR: [10, 20, 50, 80, 100, 150, 200, 300, 500, 750, 1000, 2000, 5000, 10000],
+    EGP: [200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000],
+    CHF: [10, 20, 50, 80, 100, 150, 200, 300, 500, 750, 1000, 2000, 5000],
+};
+const MILESTONE_ICONS = ['🌱','⭐','🌟','💫','🥉','🥈','🥇','🏆','💎','👑','🔥','🚀','🌈','⚡','🔮'];
+const MILESTONE_CFG = {
+    TND: { sym:'DT', flag:'🇹🇳', name:'Dinar tunisien' },
+    EUR: { sym:'€',  flag:'💶',  name:'Euro' },
+    EGP: { sym:'E£', flag:'🇪🇬', name:'Livre égyptienne' },
+    CHF: { sym:'Fr', flag:'🇨🇭', name:'Franc suisse' },
+};
+
+function generateCurrencyMilestones() {
+    const all = [];
+    Object.entries(MILESTONE_STEPS).forEach(([cur, steps]) => {
+        const c = MILESTONE_CFG[cur];
+        steps.forEach((val, i) => {
+            const label = val >= 1000000 ? (val/1000000)+'M'
+                        : val >= 1000    ? (val/1000).toFixed(val%1000===0?0:1)+'K'
+                        : val;
+            all.push({
+                id: `cur_${cur}_${i}`,
+                icon: MILESTONE_ICONS[i] || '👑',
+                name: `${c.flag} ${label} ${c.sym}`,
+                desc: `Avoir ${val.toLocaleString('fr-FR')} ${c.sym} dans ta cagnotte ${cur}`,
+                currency: cur, target: val, level: i, type: 'currency',
+                sym: c.sym, curName: c.name
+            });
+        });
+    });
+    return all;
+}
+const CURRENCY_MILESTONES = generateCurrencyMilestones();
+
 const BADGES_DEF = [
     // Premiers pas
     { id: 'first_expense',  icon: '🛍️', name: 'Premier achat!',        desc: 'Ta première dépense enregistrée' },
@@ -2002,6 +2039,18 @@ function checkBadges() {
     if ((state.wallets.TND||0)>0 && (state.wallets.EUR||0)>0)   tryAdd('diversifie');
     if (['TND','CHF','EUR','EGP'].every(c=>(state.wallets[c]||0)>0)) tryAdd('all_featured');
 
+    // Vérifier les paliers de devises (infinis)
+    CURRENCY_MILESTONES.forEach(m => {
+        const bal = state.wallets[m.currency] || 0;
+        if (bal >= m.target) {
+            if (!state.badges.includes(m.id)) {
+                state.badges.push(m.id);
+                changed = true;
+                showBadgeNotif(m, false);
+            }
+        }
+    });
+
     // Marquer les badges gagnés mais plus actifs
     state.badges.forEach(id => {
         if (!isBadgeCurrentlyActive(id) && !state.badgesInactive.includes(id)) {
@@ -2014,7 +2063,7 @@ function checkBadges() {
 }
 
 function showBadgeDetail(id, isEarned, isHistoric) {
-    const def = BADGES_DEF.find(b => b.id === id);
+    const def = BADGES_DEF.find(b=>b.id===id) || CURRENCY_MILESTONES.find(b=>b.id===id);
     if (!def) return;
     const modal = document.getElementById('badgeModal');
     document.getElementById('badgeModalIcon').textContent = def.icon;
@@ -2078,11 +2127,14 @@ function renderBadges() {
         html += `<div class="empty" style="margin-bottom:16px"><span class="e-icon">🥚</span><p>Gagne ton premier badge!</p></div>`;
     }
 
-    // ── Grille 3-par-ligne: tous les badges ──
-    html += `<div class="badge-section-label" style="color:rgba(155,93,229,0.7);margin-top:${earned.length?'14px':'0'}">🔒 À débloquer (${locked.length})</div>`;
-    html += `<div class="badges-grid">`;
+    // ── Grille: badges activité ──
+    const earnedActivity = earned.filter(id => !id.startsWith('cur_'));
+    const lockedActivity = locked;
+    const totalActivity = earnedActivity.length;
 
-    earned.forEach(id => {
+    html += `<div class="badge-section-label" style="color:rgba(155,93,229,0.7);margin-top:14px">🎖️ Badges activité (${totalActivity}/${BADGES_DEF.length})</div>`;
+    html += `<div class="badges-grid">`;
+    earnedActivity.forEach(id => {
         const def = BADGES_DEF.find(b=>b.id===id); if(!def) return;
         const isHist = inactive.includes(id);
         html += `<div class="badge-card unlocked" style="${isHist?'opacity:0.55':''};cursor:pointer" onclick="showBadgeDetail('${id}',true,${isHist})">
@@ -2091,15 +2143,61 @@ function renderBadges() {
             <div class="badge-card-label">${def.name}</div>
         </div>`;
     });
-    locked.forEach(def => {
+    lockedActivity.forEach(def => {
         html += `<div class="badge-card locked" style="cursor:pointer" onclick="showBadgeDetail('${def.id}',false,false)">
             <div class="badge-lock-icon">🔒</div>
             <div class="badge-card-icon">${def.icon}</div>
             <div class="badge-card-label">${def.name}</div>
         </div>`;
     });
-
     html += `</div>`;
+
+    // ── Paliers de devises (progressifs infinis) ──
+    const earnedMilestoneIds = (state.badges||[]).filter(id => id.startsWith('cur_'));
+    html += `<div class="badge-section-label" style="color:rgba(0,245,212,0.7);margin-top:16px">💰 Paliers d'épargne</div>`;
+    ['TND','EUR','EGP','CHF'].forEach(cur => {
+        const steps = MILESTONE_STEPS[cur] || [];
+        const c = MILESTONE_CFG[cur];
+        const earnedCount = steps.filter((_,i) => earnedMilestoneIds.includes(`cur_${cur}_${i}`)).length;
+        const nextIdx = steps.findIndex((_,i) => !earnedMilestoneIds.includes(`cur_${cur}_${i}`));
+        const isMaxed = nextIdx === -1;
+        const bal = state.wallets[cur] || 0;
+
+        html += `<div style="margin-bottom:14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                <div style="font-size:0.82rem;font-weight:900;color:white">${c.flag} ${cur}</div>
+                <div style="font-size:0.7rem;font-weight:800;color:var(--green)">${earnedCount} / ${steps.length} 🏆</div>
+            </div>`;
+
+        if (earnedCount > 0) {
+            html += `<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px">`;
+            steps.forEach((val, i) => {
+                if (!earnedMilestoneIds.includes(`cur_${cur}_${i}`)) return;
+                const label = val >= 1000 ? (val/1000).toFixed(val%1000===0?0:1)+'K' : val;
+                html += `<div onclick="showBadgeDetail('cur_${cur}_${i}',true,false)" style="background:rgba(0,245,212,0.12);border:1px solid rgba(0,245,212,0.3);border-radius:20px;padding:3px 9px;font-size:0.65rem;font-weight:900;color:var(--green);cursor:pointer">${MILESTONE_ICONS[i]} ${label} ${c.sym}</div>`;
+            });
+            html += `</div>`;
+        }
+
+        if (!isMaxed) {
+            const nextVal = steps[nextIdx];
+            const pct = Math.min(100, (bal / nextVal) * 100);
+            html += `<div onclick="showBadgeDetail('cur_${cur}_${nextIdx}',false,false)" style="background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.12);border-radius:12px;padding:10px 12px;cursor:pointer">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                    <div style="font-size:0.72rem;font-weight:800;color:rgba(255,255,255,0.45)">🔒 ${MILESTONE_ICONS[nextIdx]} ${nextVal.toLocaleString('fr-FR')} ${c.sym}</div>
+                    <div style="font-size:0.7rem;font-weight:900;color:rgba(255,255,255,0.3)">${pct.toFixed(0)}%</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.08);border-radius:10px;height:5px;overflow:hidden">
+                    <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--purple),var(--pink));border-radius:10px"></div>
+                </div>
+                <div style="font-size:0.62rem;color:rgba(255,255,255,0.22);font-weight:700;margin-top:4px">Il te manque ${(nextVal-bal).toLocaleString('fr-FR')} ${c.sym}</div>
+            </div>`;
+        } else {
+            html += `<div style="font-size:0.75rem;font-weight:800;color:var(--yellow);text-align:center;padding:6px">👑 Maximum atteint!</div>`;
+        }
+        html += `</div>`;
+    });
+
     c.innerHTML = html;
 }
 
