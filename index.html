@@ -1175,21 +1175,6 @@
 
 <!-- ===== GOALS ===== -->
 <div class="section" id="section-goals">
-    <div class="card">
-        <div class="card-title">🎯 Nouvel objectif</div>
-        <div class="iw" style="margin-bottom:10px">
-            <input type="text" id="goalName" placeholder="Nike, PS5, Voyage... ✈️" maxlength="30">
-        </div>
-        <div class="form-row">
-            <div class="iw f2">
-                <input type="number" id="goalTarget" placeholder="Montant cible 💰" inputmode="decimal" step="0.01" min="0">
-            </div>
-            <div class="iw f1">
-                <select id="goalCur"></select>
-            </div>
-        </div>
-        <button class="btn btn-add" id="goalAddBtn" onclick="addGoal()">Créer l'objectif! 🚀</button>
-    </div>
     <div id="goalsList"></div>
     <div class="card">
         <div class="card-title">🏆 Mes badges</div>
@@ -1778,6 +1763,62 @@ function renderActivity() {
     });
 }
 
+// ===== GOAL PROGRESSIONS (infinite, auto-advancing) =====
+const GOAL_PROGRESSIONS = {
+    TND: [
+        { name: 'Premiers sous 🐣',          target: 50 },
+        { name: 'Collation du mois 🍕',       target: 150 },
+        { name: 'Nouveau jeu vidéo 🎮',       target: 300 },
+        { name: 'Baskets de marque 👟',       target: 600 },
+        { name: 'Abonnement annuel 📺',       target: 1000 },
+        { name: 'Smartphone basique 📱',      target: 2000 },
+        { name: 'Smartphone récent ✨',        target: 4000 },
+        { name: 'Ordinateur portable 💻',     target: 8000 },
+        { name: 'Épargne de sécurité 🔒',     target: 15000 },
+        { name: 'Voyage en famille ✈️',        target: 30000 },
+        { name: 'Légende de l\'épargne 👑',   target: 75000 },
+    ],
+    EUR: [
+        { name: 'Premiers euros 🐣',          target: 10 },
+        { name: 'Sortie cinéma 🎬',           target: 25 },
+        { name: 'Jeu vidéo 🎮',              target: 60 },
+        { name: 'Baskets 👟',                 target: 120 },
+        { name: 'Abonnement annuel 📺',       target: 200 },
+        { name: 'Téléphone basique 📱',       target: 350 },
+        { name: 'Smartphone récent ✨',        target: 700 },
+        { name: 'Ordinateur portable 💻',     target: 1200 },
+        { name: 'Épargne de sécurité 🔒',     target: 3000 },
+        { name: 'Voyage en Europe ✈️',         target: 6000 },
+        { name: 'Légende de l\'épargne 👑',   target: 15000 },
+    ],
+    EGP: [
+        { name: 'Premiers Livres 🐣',         target: 200 },
+        { name: 'Collation du mois 🍕',       target: 600 },
+        { name: 'Nouveau jeu 🎮',             target: 1500 },
+        { name: 'Baskets 👟',                 target: 3000 },
+        { name: 'Abonnement annuel 📺',       target: 5000 },
+        { name: 'Téléphone basique 📱',       target: 10000 },
+        { name: 'Smartphone récent ✨',        target: 20000 },
+        { name: 'Ordinateur portable 💻',     target: 40000 },
+        { name: 'Épargne de sécurité 🔒',     target: 80000 },
+        { name: 'Voyage ✈️',                  target: 150000 },
+        { name: 'Légende de l\'épargne 👑',   target: 400000 },
+    ],
+    CHF: [
+        { name: 'Premiers Francs 🐣',         target: 10 },
+        { name: 'Sortie cinéma 🎬',           target: 25 },
+        { name: 'Jeu vidéo 🎮',              target: 60 },
+        { name: 'Baskets 👟',                 target: 120 },
+        { name: 'Abonnement annuel 📺',       target: 200 },
+        { name: 'Téléphone basique 📱',       target: 400 },
+        { name: 'Smartphone récent ✨',        target: 800 },
+        { name: 'Ordinateur portable 💻',     target: 1500 },
+        { name: 'Épargne de sécurité 🔒',     target: 4000 },
+        { name: 'Voyage en Suisse 🏔️',        target: 8000 },
+        { name: 'Légende de l\'épargne 👑',   target: 20000 },
+    ],
+};
+
 // ===== GOALS =====
 const BADGES_DEF = [
     // Premiers pas
@@ -1951,99 +1992,51 @@ function renderBadges() {
     c.innerHTML = html;
 }
 
-function fillGoalCur() {
-    const sel = document.getElementById('goalCur');
-    if (!sel || sel.options.length > 0) return;
-    const featured = Object.entries(CUR).filter(([,d]) => d.featured);
-    const others   = Object.entries(CUR).filter(([,d]) => !d.featured);
-    featured.forEach(([code,d]) => {
-        const o = document.createElement('option'); o.value=code; o.textContent=`${d.flag} ${code}`; sel.appendChild(o);
-    });
-    const sep = document.createElement('option'); sep.disabled=true; sep.textContent='──────────'; sel.appendChild(sep);
-    others.forEach(([code,d]) => {
-        const o = document.createElement('option'); o.value=code; o.textContent=`${d.flag} ${code}`; sel.appendChild(o);
-    });
-}
-
-function addGoal() {
-    const name = document.getElementById('goalName').value.trim();
-    const target = parseFloat(document.getElementById('goalTarget').value);
-    const currency = document.getElementById('goalCur').value;
-    if (!name) { shakeEl('goalName'); return; }
-    if (!target || target <= 0 || !currency) { shakeEl('goalTarget'); return; }
-    state.goals = state.goals || [];
-    state.goals.push({ id: Date.now(), name, target, currency, saved: 0, done: false, createdAt: Date.now() });
-    document.getElementById('goalName').value = '';
-    document.getElementById('goalTarget').value = '';
-    saveState();
-    render();
-    bounce('goalAddBtn');
-    showEmoji('🎯');
-}
-
-function contributeToGoal(id) {
-    const goal = (state.goals||[]).find(g => g.id === id);
-    if (!goal || goal.done) return;
-    const amtEl = document.getElementById('goalAmt_' + id);
-    const amt = parseFloat(amtEl?.value);
-    if (!amt || amt <= 0) { if(amtEl) shakeEl('goalAmt_' + id); return; }
-    const bal = state.wallets[goal.currency] || 0;
-    if (amt > bal + 0.001) { if(amtEl) shakeEl('goalAmt_' + id); return; }
-    state.wallets[goal.currency] = bal - amt;
-    if (state.wallets[goal.currency] <= 0.001) delete state.wallets[goal.currency];
-    goal.saved = (goal.saved || 0) + amt;
-    if (goal.saved >= goal.target) { goal.done = true; launchConfetti(); checkBadges(); }
-    if(amtEl) amtEl.value = '';
-    saveState();
-    render();
-    checkBadges();
-}
-
-function deleteGoal(id) {
-    const idx = (state.goals||[]).findIndex(g => g.id === id);
-    if (idx >= 0) { state.goals.splice(idx, 1); saveState(); render(); }
-}
-
 function renderGoals() {
-    fillGoalCur();
     const c = document.getElementById('goalsList');
     if (!c) return;
-    const goals = state.goals || [];
-    if (!goals.length) { c.innerHTML = ''; return; }
-    c.innerHTML = goals.map(g => {
-        // Progress = wallet balance auto-detected (no manual contribution, wallet unchanged)
-        const walletBal = state.wallets[g.currency] || 0;
-        const pct = Math.min(100, (walletBal / g.target) * 100);
-        const isReached = walletBal >= g.target;
-        const cur = CUR[g.currency] || { sym: g.currency, flag: '💰' };
-        const savedFmt = fmt(walletBal, g.currency);
-        const targetFmt = fmt(g.target, g.currency);
-        const goalIcon = isReached ? '🎉' : cur.flag;
-        if (isReached && !g.done) { g.done = true; launchConfetti(); checkBadges(); }
-        return `<div class="goal-card ${isReached ? 'done' : ''}">
+    const FEATURED = ['TND', 'EUR', 'EGP', 'CHF'];
+    c.innerHTML = FEATURED.map(currency => {
+        const steps = GOAL_PROGRESSIONS[currency];
+        const cur = CUR[currency];
+        const bal = state.wallets[currency] || 0;
+        // Find current step = first target not yet reached
+        const stepIdx = steps.findIndex(g => bal < g.target);
+        const isMaxed = stepIdx === -1;
+        const curStep = isMaxed ? steps.length - 1 : stepIdx;
+        const goal = steps[curStep];
+        const prevTarget = curStep > 0 ? steps[curStep - 1].target : 0;
+        const rawPct = isMaxed ? 100 : ((bal - prevTarget) / (goal.target - prevTarget)) * 100;
+        const pct = Math.min(100, Math.max(0, rawPct));
+        const nextGoal = !isMaxed && curStep + 1 < steps.length ? steps[curStep + 1] : null;
+        const hasWallet = bal > 0;
+
+        return `<div class="goal-card ${isMaxed ? 'done' : ''}">
             <div class="goal-top">
                 <div class="goal-info">
-                    <div class="goal-emoji-circle">${goalIcon}</div>
+                    <div class="goal-emoji-circle">${isMaxed ? '👑' : cur.flag}</div>
                     <div>
-                        <div class="goal-name">${g.name}</div>
-                        <div class="goal-sub">${g.currency} · ${isReached ? '✅ Objectif atteint!' : savedFmt + ' / ' + targetFmt}</div>
+                        <div class="goal-name">${goal.name}</div>
+                        <div class="goal-sub">${currency} · Étape ${curStep + 1} / ${steps.length}</div>
                     </div>
                 </div>
-                <div style="display:flex;align-items:center;gap:8px">
-                    <div class="goal-pct-big">${pct.toFixed(0)}%</div>
-                    <button class="btn-goal-del" onclick="deleteGoal(${g.id})">🗑️</button>
-                </div>
+                <div class="goal-pct-big">${pct.toFixed(0)}%</div>
             </div>
             <div class="goal-bar-wrap">
                 <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
             </div>
             <div class="goal-amounts-row">
-                <span>💰 ${savedFmt}</span>
-                <span>🎯 ${targetFmt}</span>
+                <span>💰 ${fmt(bal, currency)}</span>
+                <span>🎯 ${fmt(goal.target, currency)}</span>
             </div>
-            ${!isReached ? `<div class="goal-bal-info" style="margin-top:6px">
-                Il te manque ${fmt(g.target - walletBal, g.currency)} 💪
-            </div>` : ''}
+            <div class="goal-bal-info" style="margin-top:6px">
+                ${isMaxed
+                    ? '👑 Maximum atteint! T\'es une légende!'
+                    : hasWallet
+                        ? `Il te manque <strong>${fmt(Math.max(0, goal.target - bal), currency)}</strong> 💪${nextGoal ? ` · Après : ${nextGoal.name}` : ''}`
+                        : `Commence à mettre de l'argent en ${currency} pour progresser! 🚀`
+                }
+            </div>
         </div>`;
     }).join('');
 }
