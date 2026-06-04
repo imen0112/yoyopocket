@@ -1094,7 +1094,7 @@
     <div class="card">
         <div class="card-title">🎯 Nouvel objectif</div>
         <div class="iw" style="margin-bottom:10px">
-            <input type="text" id="goalName" placeholder="Nike, PS5, Voyage... ✈️" maxlength="30" style="width:100%;background:transparent;border:none;color:white;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;outline:none">
+            <input type="text" id="goalName" placeholder="Nike, PS5, Voyage... ✈️" maxlength="30">
         </div>
         <div class="form-row">
             <div class="iw f2">
@@ -1776,7 +1776,8 @@ function addGoal() {
     const name = document.getElementById('goalName').value.trim();
     const target = parseFloat(document.getElementById('goalTarget').value);
     const currency = document.getElementById('goalCur').value;
-    if (!name || !target || target <= 0 || !currency) { shakeEl('goalTarget'); return; }
+    if (!name) { shakeEl('goalName'); return; }
+    if (!target || target <= 0 || !currency) { shakeEl('goalTarget'); return; }
     state.goals = state.goals || [];
     state.goals.push({ id: Date.now(), name, target, currency, saved: 0, done: false, createdAt: Date.now() });
     document.getElementById('goalName').value = '';
