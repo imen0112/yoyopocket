@@ -816,12 +816,82 @@
         .btn-goal { padding: 8px 14px; border: none; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 0.8rem; font-weight: 900; cursor: pointer; background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; white-space: nowrap; }
         .btn-goal-del { background: rgba(255,71,87,0.15); color: #ff6b6b; border: none; border-radius: 12px; padding: 8px 10px; cursor: pointer; font-size: 0.85rem; }
 
-        /* ===== BADGES LIST ===== */
-        .badge-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .badge-item:last-child { border-bottom: none; }
-        .badge-icon-big { font-size: 1.8rem; width: 44px; text-align: center; flex-shrink: 0; }
-        .badge-name { font-weight: 900; color: var(--yellow); font-size: 0.9rem; }
-        .badge-desc { font-size: 0.72rem; color: rgba(255,255,255,0.4); font-weight: 700; margin-top: 2px; }
+        /* ===== BADGES REDESIGN ===== */
+        .badges-earned-strip {
+            display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 12px;
+            scrollbar-width: none; -webkit-overflow-scrolling: touch;
+        }
+        .badges-earned-strip::-webkit-scrollbar { display: none; }
+
+        .badge-pill {
+            flex: 0 0 auto; display: flex; flex-direction: column; align-items: center;
+            width: 80px; cursor: pointer;
+        }
+        .badge-pill-circle {
+            width: 58px; height: 58px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.7rem; margin-bottom: 6px; position: relative;
+            background: linear-gradient(135deg, #7b2ff7, #f222b5);
+            box-shadow: 0 0 0 3px rgba(155,93,229,0.3), 0 6px 20px rgba(155,93,229,0.4);
+            animation: badgePulse 3s ease-in-out infinite;
+        }
+        .badge-pill-circle.hist {
+            background: rgba(255,255,255,0.1);
+            box-shadow: none; animation: none; filter: grayscale(0.6);
+        }
+        @keyframes badgePulse {
+            0%,100% { box-shadow: 0 0 0 3px rgba(155,93,229,0.3), 0 6px 20px rgba(155,93,229,0.4); }
+            50%      { box-shadow: 0 0 0 5px rgba(241,91,181,0.4), 0 8px 28px rgba(241,91,181,0.5); }
+        }
+        .badge-pill-name {
+            font-size: 0.6rem; font-weight: 800; color: white; text-align: center;
+            line-height: 1.2; max-width: 78px;
+        }
+        .badge-pill-check {
+            position: absolute; bottom: -2px; right: -2px;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: var(--green); font-size: 0.55rem;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--dark2); font-weight: 900; color: var(--dark);
+        }
+
+        /* Grid 3-per-row for all badges */
+        .badges-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+            margin-top: 4px;
+        }
+        .badge-card {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 12px 6px; border-radius: 16px; text-align: center;
+            cursor: default; position: relative; transition: transform 0.2s;
+        }
+        .badge-card.unlocked {
+            background: linear-gradient(135deg, rgba(123,47,247,0.2), rgba(242,34,181,0.2));
+            border: 1px solid rgba(155,93,229,0.4);
+        }
+        .badge-card.locked {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .badge-card-icon { font-size: 1.5rem; margin-bottom: 5px; }
+        .badge-card.locked .badge-card-icon { filter: grayscale(1); opacity: 0.3; }
+        .badge-card-label {
+            font-size: 0.58rem; font-weight: 800; line-height: 1.25;
+            color: white;
+        }
+        .badge-card.locked .badge-card-label { color: rgba(255,255,255,0.25); }
+        .badge-lock-icon {
+            position: absolute; top: 6px; right: 6px;
+            font-size: 0.6rem; opacity: 0.4;
+        }
+        .badge-hist-icon {
+            position: absolute; top: 6px; right: 6px;
+            font-size: 0.65rem; opacity: 0.6;
+        }
+        .badge-section-label {
+            font-size: 0.7rem; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 1.5px; margin-bottom: 10px; margin-top: 4px;
+        }
 
         /* ===== ACTIVITY FILTER ===== */
         .filter-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
@@ -1942,53 +2012,69 @@ function showBadgeNotif(def, isReturn = false) {
 function renderBadges() {
     const c = document.getElementById('badgesList');
     if (!c) return;
-    const earned = state.badges || [];
+    const earned   = state.badges || [];
     const inactive = state.badgesInactive || [];
-    if (!earned.length) {
-        c.innerHTML = `<div class="empty"><span class="e-icon">🥚</span><p>Gagne tes premiers badges!</p></div>`;
-        return;
-    }
-    // Active badges first, then inactive (greyed)
-    const active = earned.filter(id => !inactive.includes(id));
-    const hist   = earned.filter(id =>  inactive.includes(id));
+    const active   = earned.filter(id => !inactive.includes(id));
+    const hist     = earned.filter(id =>  inactive.includes(id));
+    const locked   = BADGES_DEF.filter(def => !earned.includes(def.id));
+
     let html = '';
-    if (active.length) {
-        html += active.map(id => {
-            const def = BADGES_DEF.find(b=>b.id===id); if(!def) return '';
-            return `<div class="badge-item">
-                <div class="badge-icon-big">${def.icon}</div>
-                <div><div class="badge-name">${def.name}</div><div class="badge-desc">${def.desc}</div></div>
-            </div>`;
-        }).join('');
-    }
-    if (hist.length) {
-        html += `<div style="font-size:0.72rem;font-weight:900;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07)">🕐 Badges historiques</div>`;
-        html += hist.map(id => {
-            const def = BADGES_DEF.find(b=>b.id===id); if(!def) return '';
-            return `<div class="badge-item" style="opacity:0.4;filter:grayscale(0.8)">
-                <div class="badge-icon-big">${def.icon}</div>
-                <div>
-                    <div class="badge-name" style="color:rgba(255,255,255,0.5)">${def.name}</div>
-                    <div class="badge-desc">Conditions plus remplies pour l'instant</div>
+
+    // ── Strip horizontal: badges gagnés (swipe) ──
+    if (earned.length) {
+        html += `<div class="badge-section-label" style="color:var(--yellow)">✨ Mes badges (${earned.length})</div>`;
+        html += `<div class="badges-earned-strip">`;
+        // Active first
+        active.forEach(id => {
+            const def = BADGES_DEF.find(b=>b.id===id); if(!def) return;
+            html += `<div class="badge-pill">
+                <div class="badge-pill-circle">
+                    ${def.icon}
+                    <div class="badge-pill-check">✓</div>
                 </div>
+                <div class="badge-pill-name">${def.name}</div>
             </div>`;
-        }).join('');
+        });
+        // Historical (dimmed)
+        hist.forEach(id => {
+            const def = BADGES_DEF.find(b=>b.id===id); if(!def) return;
+            html += `<div class="badge-pill">
+                <div class="badge-pill-circle hist">
+                    ${def.icon}
+                    <div class="badge-pill-check" style="background:rgba(255,255,255,0.3)">🕐</div>
+                </div>
+                <div class="badge-pill-name" style="color:rgba(255,255,255,0.4)">${def.name}</div>
+            </div>`;
+        });
+        html += `</div>`;
+    } else {
+        html += `<div class="empty" style="margin-bottom:16px"><span class="e-icon">🥚</span><p>Gagne ton premier badge!</p></div>`;
     }
 
-    // Badges pas encore gagnés
-    const notEarned = BADGES_DEF.filter(def => !earned.includes(def.id));
-    if (notEarned.length) {
-        html += `<div style="font-size:0.72rem;font-weight:900;color:rgba(155,93,229,0.6);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.07)">🔒 À débloquer</div>`;
-        html += notEarned.map(def => `
-            <div class="badge-item" style="opacity:0.5">
-                <div class="badge-icon-big" style="filter:grayscale(1)">🔒</div>
-                <div>
-                    <div class="badge-name" style="color:rgba(255,255,255,0.4)">${def.name}</div>
-                    <div class="badge-desc">${def.desc}</div>
-                </div>
-            </div>`).join('');
-    }
+    // ── Grille 3-par-ligne: tous les badges ──
+    html += `<div class="badge-section-label" style="color:rgba(155,93,229,0.7);margin-top:${earned.length?'14px':'0'}">🔒 À débloquer (${locked.length})</div>`;
+    html += `<div class="badges-grid">`;
 
+    // Earned in grid (small)
+    earned.forEach(id => {
+        const def = BADGES_DEF.find(b=>b.id===id); if(!def) return;
+        const isHist = inactive.includes(id);
+        html += `<div class="badge-card unlocked" style="${isHist?'opacity:0.55':''}">
+            ${isHist ? '<div class="badge-hist-icon">🕐</div>' : ''}
+            <div class="badge-card-icon">${def.icon}</div>
+            <div class="badge-card-label">${def.name}</div>
+        </div>`;
+    });
+    // Locked in grid
+    locked.forEach(def => {
+        html += `<div class="badge-card locked">
+            <div class="badge-lock-icon">🔒</div>
+            <div class="badge-card-icon">${def.icon}</div>
+            <div class="badge-card-label">${def.name}</div>
+        </div>`;
+    });
+
+    html += `</div>`;
     c.innerHTML = html;
 }
 
