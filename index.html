@@ -1011,12 +1011,6 @@
     </div>
 </div>
 
-<!-- BADGE NOTIF -->
-<div class="badge-notif" id="badgeNotif" onclick="document.getElementById('badgeNotif').classList.remove('show')">
-    <div class="badge-notif-icon" id="badgeNotifIcon">🏆</div>
-    <div class="badge-notif-text" id="badgeNotifText">Badge débloqué!</div>
-    <div style="margin-left:8px;opacity:0.6;font-size:0.8rem">✕</div>
-</div>
 
 <!-- ===== LOGIN SCREEN ===== -->
 <div id="loginScreen">
@@ -1459,12 +1453,11 @@ function fillConvertSelects() {
 function renderMainCurrency() {
     const row = document.getElementById('mcRow');
     row.innerHTML = '';
-    // Featured 4 first, big — then others small
-    Object.entries(CUR).forEach(([code, d]) => {
+    // Only show featured currencies (TND, CHF, EUR, EGP)
+    Object.entries(CUR).filter(([,d]) => d.featured).forEach(([code, d]) => {
         const btn = document.createElement('button');
         const isActive = code === state.mainCurrency;
-        const isFeatured = d.featured;
-        btn.className = `mc-chip${isActive ? ' active' : ''}${isFeatured ? ' featured' : ''}`;
+        btn.className = `mc-chip featured${isActive ? ' active' : ''}`;
         btn.textContent = `${d.flag} ${code}`;
         btn.onclick = () => { state.mainCurrency = code; saveState(); render(); };
         row.appendChild(btn);
