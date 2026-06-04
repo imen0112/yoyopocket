@@ -184,17 +184,17 @@
 
         .tab {
             flex: 1;
-            padding: 10px 4px;
+            padding: 8px 2px;
             border: none;
             background: transparent;
             border-radius: 14px;
             color: rgba(255,255,255,0.45);
-            font-size: 0.72rem;
+            font-size: 0.58rem;
             font-weight: 800;
             cursor: pointer;
             transition: all 0.28s cubic-bezier(0.34,1.56,0.64,1);
             font-family: 'Nunito', sans-serif;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
         }
 
         .tab.active {
@@ -669,6 +669,84 @@
             display: none;
         }
 
+        /* ===== CONFIRM MODAL ===== */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 9500;
+            background: rgba(0,0,0,0.75);
+            display: flex; align-items: center; justify-content: center; padding: 24px;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+        .modal-box {
+            background: #1e0542;
+            border: 1px solid rgba(155,93,229,0.4);
+            border-radius: 26px; padding: 28px 24px; max-width: 320px; width: 100%;
+            text-align: center;
+            animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes popIn { from { opacity:0; transform:scale(0.85) } to { opacity:1; transform:scale(1) } }
+        .modal-emoji { font-size: 2.5rem; margin-bottom: 12px; }
+        .modal-text  { font-size: 1rem; font-weight: 800; color: white; margin-bottom: 22px; line-height: 1.4; }
+        .modal-btns  { display: flex; gap: 12px; }
+        .modal-btns button {
+            flex: 1; padding: 14px; border: none; border-radius: 16px;
+            font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 900;
+            cursor: pointer; transition: transform 0.15s;
+        }
+        .modal-btns button:active { transform: scale(0.95); }
+        .btn-cancel { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+        .btn-ok     { background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; }
+
+        /* ===== BADGE NOTIF ===== */
+        .badge-notif {
+            position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-120px);
+            background: linear-gradient(135deg, #FEE440, #ff9f43);
+            border-radius: 20px; padding: 14px 22px;
+            display: flex; align-items: center; gap: 10px;
+            z-index: 9000; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 8px 30px rgba(254,228,64,0.4);
+            white-space: nowrap;
+        }
+        .badge-notif.show { transform: translateX(-50%) translateY(0); }
+        .badge-notif-icon { font-size: 1.6rem; }
+        .badge-notif-text { font-family: 'Fredoka One', sans-serif; font-size: 0.95rem; color: #12022b; }
+
+        /* ===== GOALS ===== */
+        .goal-card {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 16px 18px; margin-bottom: 12px;
+        }
+        .goal-card.done { border-color: rgba(0,245,212,0.4); background: rgba(0,245,212,0.07); }
+        .goal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .goal-name { font-family: 'Fredoka One', sans-serif; font-size: 1.05rem; color: white; }
+        .goal-amounts { font-size: 0.78rem; font-weight: 800; color: rgba(255,255,255,0.45); }
+        .goal-bar-bg { background: rgba(255,255,255,0.1); border-radius: 20px; height: 12px; overflow: hidden; margin-bottom: 12px; }
+        .goal-bar-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--purple), var(--pink)); transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+        .goal-card.done .goal-bar-fill { background: linear-gradient(90deg, var(--green), #00BBF9); }
+        .goal-actions { display: flex; gap: 8px; align-items: center; }
+        .goal-input-row { display: flex; gap: 8px; flex: 1; }
+        .goal-input-row input { flex: 1; min-width: 0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 8px 12px; color: white; font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 700; }
+        .btn-goal { padding: 8px 14px; border: none; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 0.8rem; font-weight: 900; cursor: pointer; background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; white-space: nowrap; }
+        .btn-goal-del { background: rgba(255,71,87,0.15); color: #ff6b6b; border: none; border-radius: 12px; padding: 8px 10px; cursor: pointer; font-size: 0.85rem; }
+
+        /* ===== BADGES LIST ===== */
+        .badge-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .badge-item:last-child { border-bottom: none; }
+        .badge-icon-big { font-size: 1.8rem; width: 44px; text-align: center; flex-shrink: 0; }
+        .badge-name { font-weight: 900; color: var(--yellow); font-size: 0.9rem; }
+        .badge-desc { font-size: 0.72rem; color: rgba(255,255,255,0.4); font-weight: 700; margin-top: 2px; }
+
+        /* ===== ACTIVITY FILTER ===== */
+        .filter-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+        .filter-btn {
+            flex: 1; padding: 9px; border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px; background: transparent; color: rgba(255,255,255,0.45);
+            font-family: 'Nunito', sans-serif; font-size: 0.78rem; font-weight: 800;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .filter-btn.active { background: rgba(155,93,229,0.25); border-color: var(--purple); color: white; }
+
         /* ===== LOGIN SCREEN ===== */
         #loginScreen {
             position: fixed;
@@ -835,6 +913,24 @@
 <canvas id="confettiCanvas"></canvas>
 <div class="emoji-fly" id="emojiOverlay">😭</div>
 
+<!-- CONFIRM MODAL -->
+<div id="confirmModal" class="modal-overlay" style="display:none">
+    <div class="modal-box">
+        <div class="modal-emoji" id="confirmEmoji">🤔</div>
+        <div class="modal-text" id="confirmText"></div>
+        <div class="modal-btns">
+            <button class="btn-cancel" onclick="resolveConfirm(false)">❌ Annuler</button>
+            <button class="btn-ok" onclick="resolveConfirm(true)">✅ Confirmer</button>
+        </div>
+    </div>
+</div>
+
+<!-- BADGE NOTIF -->
+<div class="badge-notif" id="badgeNotif">
+    <div class="badge-notif-icon" id="badgeNotifIcon">🏆</div>
+    <div class="badge-notif-text" id="badgeNotifText">Badge débloqué!</div>
+</div>
+
 <!-- ===== LOGIN SCREEN ===== -->
 <div id="loginScreen">
     <div class="login-logo">Yoyo Pocket 🪙</div>
@@ -884,8 +980,9 @@
 <!-- TABS -->
 <div class="tabs">
     <button class="tab active" onclick="switchTab('wallet', this)">💰 Argent</button>
-    <button class="tab" onclick="switchTab('convert', this)">🔄 Convertir</button>
-    <button class="tab" onclick="switchTab('expenses', this)">📝 Dépenses</button>
+    <button class="tab" onclick="switchTab('convert', this)">🔄 Taux</button>
+    <button class="tab" onclick="switchTab('expenses', this)">📊 Activité</button>
+    <button class="tab" onclick="switchTab('goals', this)">🎯 Objectifs</button>
     <button class="tab" onclick="switchTab('send', this)">📤 Envoyer</button>
 </div>
 
@@ -979,13 +1076,35 @@
     </div>
 
     <div class="card">
-        <div class="card-title">🧾 Mes dépenses</div>
-        <div id="expenseList">
-            <div class="empty">
-                <span class="e-icon">🎉</span>
-                <p>Aucune dépense! T'es un champion! 💪</p>
+        <div class="filter-tabs">
+            <button class="filter-btn active" id="filterExpBtn" onclick="setExpFilter('expenses')">💸 Dépenses</button>
+            <button class="filter-btn" id="filterAllBtn" onclick="setExpFilter('all')">📊 Tout ce qui sort</button>
+        </div>
+        <div id="activityList"></div>
+    </div>
+</div>
+
+<!-- ===== GOALS ===== -->
+<div class="section" id="section-goals">
+    <div class="card">
+        <div class="card-title">🎯 Nouvel objectif</div>
+        <div class="iw" style="margin-bottom:10px">
+            <input type="text" id="goalName" placeholder="Nike, PS5, Voyage... ✈️" maxlength="30" style="width:100%;background:transparent;border:none;color:white;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;outline:none">
+        </div>
+        <div class="form-row">
+            <div class="iw f2">
+                <input type="number" id="goalTarget" placeholder="Montant cible 💰" inputmode="decimal" step="0.01" min="0">
+            </div>
+            <div class="iw f1">
+                <select id="goalCur"></select>
             </div>
         </div>
+        <button class="btn btn-add" id="goalAddBtn" onclick="addGoal()">Créer l'objectif! 🚀</button>
+    </div>
+    <div id="goalsList"></div>
+    <div class="card">
+        <div class="card-title">🏆 Mes badges</div>
+        <div id="badgesList"><div class="empty"><span class="e-icon">🥚</span><p>Gagne tes premiers badges!</p></div></div>
     </div>
 </div>
 
@@ -1144,6 +1263,9 @@ async function loadUserData(username) {
             }
             state.wallets = {};
             state.expenses = [];
+            state.transfers = [];
+            state.goals = [];
+            state.badges = [];
             state.mainCurrency = 'TND';
             state.selCat = 0;
         }
@@ -1362,44 +1484,14 @@ function renderCagnottes() {
     container.appendChild(grid);
 }
 
-function renderExpenses() {
-    const c = document.getElementById('expenseList');
-    if (!state.expenses.length) {
-        c.innerHTML = `<div class="empty"><span class="e-icon">🎉</span><p>Aucune dépense! T'es un champion! 💪</p></div>`;
-        return;
-    }
-    c.innerHTML = '';
-    [...state.expenses].reverse().forEach((item, ri) => {
-        const i = state.expenses.length - 1 - ri;
-        const cat = CATS[item.category] || CATS[0];
-        const date = new Date(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-        const inMain = cvt(item.amount, item.currency, state.mainCurrency);
-        const d = document.createElement('div');
-        d.className = 'list-item slide-in';
-        d.innerHTML = `
-            <div class="list-left">
-                <div class="list-icon icon-exp">${cat.icon}</div>
-                <div>
-                    <div style="font-weight:800;color:white;font-size:0.9rem">${item.desc || cat.name}</div>
-                    <div class="item-sub">${cat.name} · ${date} · ≈ ${fmt(inMain, state.mainCurrency)}</div>
-                </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:6px">
-                <div class="item-main red">-${fmt(item.amount, item.currency)}</div>
-                <button class="del-btn" onclick="delExpense(${i})">🗑️</button>
-            </div>
-        `;
-        c.appendChild(d);
-    });
-}
 
 function renderBalance() {
+    // Wallets already reflect true balance (expenses & transfers deduct from wallet)
     const totalWalEUR = Object.entries(state.wallets).reduce((s, [cur, bal]) => s + toEUR(bal, cur), 0);
     const totalExpEUR = state.expenses.reduce((s, i) => s + toEUR(i.amount, i.currency), 0);
-    const netEUR = totalWalEUR - totalExpEUR;
 
     const mc = state.mainCurrency;
-    const netMain = fromEUR(netEUR, mc);
+    const netMain = fromEUR(totalWalEUR, mc);
     const expMain = fromEUR(totalExpEUR, mc);
 
     document.getElementById('balanceAmt').textContent = fmt(netMain, mc);
@@ -1415,10 +1507,12 @@ function render() {
     renderBalance();
     renderMainCurrency();
     renderCagnottes();
-    renderExpenses();
+    renderActivity();
     fillConvertSelects();
     fillSendSelect();
     renderTransferHistory();
+    renderGoals();
+    renderBadges();
 }
 
 // ===== ACTIONS =====
@@ -1432,6 +1526,7 @@ function addMoney() {
     document.getElementById('addAmt').value = '';
     launchConfetti();
     bounce('addBtn');
+    checkBadges();
 }
 
 
@@ -1440,6 +1535,11 @@ function addExpense() {
     const cur = document.getElementById('expCur').value;
     const desc = document.getElementById('expDesc').value.trim();
     if (!amt || amt <= 0) { shakeEl('expAmt'); return; }
+    const bal = state.wallets[cur] || 0;
+    if (amt > bal + 0.001) { shakeEl('expAmt'); return; } // pas assez
+    // Deduct from wallet
+    state.wallets[cur] = bal - amt;
+    if (state.wallets[cur] <= 0.001) delete state.wallets[cur];
     state.expenses.push({ amount: amt, currency: cur, desc, category: state.selCat, date: Date.now() });
     saveState();
     render();
@@ -1447,9 +1547,19 @@ function addExpense() {
     document.getElementById('expDesc').value = '';
     showEmoji('😭');
     bounce('expBtn');
+    checkBadges();
 }
 
-function delExpense(i) { state.expenses.splice(i, 1); saveState(); render(); }
+function delExpense(i) {
+    const exp = state.expenses[i];
+    if (exp) {
+        // Restore amount to wallet
+        state.wallets[exp.currency] = (state.wallets[exp.currency] || 0) + exp.amount;
+    }
+    state.expenses.splice(i, 1);
+    saveState();
+    render();
+}
 
 // ===== CONVERTER / TRANSFERT =====
 function doConvert() {
@@ -1502,6 +1612,239 @@ function transferCagnotte() {
 
     showEmoji('🚀');
     bounce('addBtn');
+}
+
+// ===== CONFIRM MODAL =====
+let confirmResolve = null;
+function showConfirm(emoji, text) {
+    return new Promise(resolve => {
+        confirmResolve = resolve;
+        document.getElementById('confirmEmoji').textContent = emoji;
+        document.getElementById('confirmText').textContent = text;
+        document.getElementById('confirmModal').style.display = 'flex';
+    });
+}
+function resolveConfirm(val) {
+    document.getElementById('confirmModal').style.display = 'none';
+    if (confirmResolve) { confirmResolve(val); confirmResolve = null; }
+}
+
+// ===== ACTIVITY (unified list) =====
+let expFilter = 'expenses';
+function setExpFilter(f) {
+    expFilter = f;
+    document.getElementById('filterExpBtn').classList.toggle('active', f === 'expenses');
+    document.getElementById('filterAllBtn').classList.toggle('active', f === 'all');
+    renderActivity();
+}
+
+function renderActivity() {
+    const c = document.getElementById('activityList');
+    if (!c) return;
+    const DISPLAY_NAMES = { 'yoyo': 'Yoyo', 'enzo': 'Enzo' };
+
+    let items = [];
+
+    // Expenses
+    state.expenses.forEach((item, i) => {
+        const cat = CATS[item.category] || CATS[0];
+        items.push({ type: 'expense', date: item.date, amount: item.amount, currency: item.currency,
+            label: item.desc || cat.name, sub: cat.name, icon: cat.icon, idx: i });
+    });
+
+    // Transfers sent (only in "all" mode)
+    if (expFilter === 'all') {
+        (state.transfers || []).filter(t => t.direction === 'sent').forEach(t => {
+            const cur = CUR[t.currency] || { sym: t.currency, flag: '' };
+            items.push({ type: 'transfer', date: t.ts, amount: t.amount, currency: t.currency,
+                label: `Envoyé à ${DISPLAY_NAMES[t.other] || t.other}`, sub: 'Transfert', icon: '📤', idx: null });
+        });
+    }
+
+    // Sort by date desc
+    items.sort((a,b) => b.date - a.date);
+
+    if (!items.length) {
+        c.innerHTML = `<div class="empty"><span class="e-icon">🎉</span><p>${expFilter === 'all' ? 'Aucune activité!' : 'Aucune dépense! T\'es un champion! 💪'}</p></div>`;
+        return;
+    }
+
+    c.innerHTML = '';
+    items.forEach(item => {
+        const dateStr = new Date(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+        const inMain = cvt(item.amount, item.currency, state.mainCurrency);
+        const d = document.createElement('div');
+        d.className = 'list-item slide-in';
+        const delBtn = (item.type === 'expense' && item.idx !== null)
+            ? `<button class="del-btn" onclick="delExpense(${item.idx})">🗑️</button>` : '';
+        d.innerHTML = `
+            <div class="list-left">
+                <div class="list-icon icon-exp">${item.icon}</div>
+                <div>
+                    <div style="font-weight:800;color:white;font-size:0.9rem">${item.label}</div>
+                    <div class="item-sub">${item.sub} · ${dateStr} · ≈ ${fmt(inMain, state.mainCurrency)}</div>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+                <div class="item-main red">-${fmt(item.amount, item.currency)}</div>
+                ${delBtn}
+            </div>`;
+        c.appendChild(d);
+    });
+}
+
+// ===== GOALS =====
+const BADGES_DEF = [
+    { id: 'first_expense',  icon: '🛍️', name: 'Premier achat!',      desc: 'Ta première dépense enregistrée' },
+    { id: 'first_transfer', icon: '🚀', name: 'Premier transfert!',   desc: 'Tu as envoyé de l\'argent pour la première fois' },
+    { id: 'first_goal',     icon: '🎯', name: 'Objectif atteint!',    desc: 'Tu as atteint ton premier objectif' },
+    { id: 'rich_tnd',       icon: '🇹🇳', name: 'Millionnaire TND',    desc: 'Plus de 1 000 DT dans ta cagnotte TND' },
+    { id: 'swiss',          icon: '🇨🇭', name: 'Swiss Style',          desc: 'Plus de 100 CHF dans ta cagnotte CHF' },
+    { id: 'pharaon',        icon: '🏺', name: 'Pharaon!',             desc: 'Plus de 5 000 E£ dans ta cagnotte EGP' },
+    { id: 'euro_rich',      icon: '💶', name: 'Riche en Euro',        desc: 'Plus de 100 € dans ta cagnotte EUR' },
+    { id: 'whale',          icon: '🐋', name: 'La Baleine 🐋',        desc: 'Plus de 500€ au total toutes cagnottes' },
+];
+
+function checkBadges() {
+    state.badges = state.badges || [];
+    const add = (id) => {
+        if (!state.badges.includes(id)) {
+            state.badges.push(id);
+            const def = BADGES_DEF.find(b => b.id === id);
+            if (def) showBadgeNotif(def);
+        }
+    };
+    if (state.expenses.length >= 1)                             add('first_expense');
+    if ((state.transfers||[]).some(t=>t.direction==='sent'))    add('first_transfer');
+    if ((state.goals||[]).some(g=>g.done))                      add('first_goal');
+    if ((state.wallets.TND||0) >= 1000)                         add('rich_tnd');
+    if ((state.wallets.CHF||0) >= 100)                          add('swiss');
+    if ((state.wallets.EGP||0) >= 5000)                         add('pharaon');
+    if ((state.wallets.EUR||0) >= 100)                          add('euro_rich');
+    const totalEUR = Object.entries(state.wallets).reduce((s,[c,b])=>s+toEUR(b,c),0);
+    if (totalEUR >= 500)                                        add('whale');
+    saveState();
+    renderBadges();
+}
+
+function showBadgeNotif(def) {
+    const el = document.getElementById('badgeNotif');
+    document.getElementById('badgeNotifIcon').textContent = def.icon;
+    document.getElementById('badgeNotifText').textContent = `${def.name}`;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+function renderBadges() {
+    const c = document.getElementById('badgesList');
+    if (!c) return;
+    const earned = (state.badges || []);
+    if (!earned.length) {
+        c.innerHTML = `<div class="empty"><span class="e-icon">🥚</span><p>Gagne tes premiers badges!</p></div>`;
+        return;
+    }
+    c.innerHTML = earned.map(id => {
+        const def = BADGES_DEF.find(b => b.id === id);
+        if (!def) return '';
+        return `<div class="badge-item">
+            <div class="badge-icon-big">${def.icon}</div>
+            <div><div class="badge-name">${def.name}</div><div class="badge-desc">${def.desc}</div></div>
+        </div>`;
+    }).join('');
+}
+
+function fillGoalCur() {
+    const sel = document.getElementById('goalCur');
+    if (!sel || sel.options.length > 0) return;
+    const featured = Object.entries(CUR).filter(([,d]) => d.featured);
+    const others   = Object.entries(CUR).filter(([,d]) => !d.featured);
+    featured.forEach(([code,d]) => {
+        const o = document.createElement('option'); o.value=code; o.textContent=`${d.flag} ${code}`; sel.appendChild(o);
+    });
+    const sep = document.createElement('option'); sep.disabled=true; sep.textContent='──────────'; sel.appendChild(sep);
+    others.forEach(([code,d]) => {
+        const o = document.createElement('option'); o.value=code; o.textContent=`${d.flag} ${code}`; sel.appendChild(o);
+    });
+}
+
+function addGoal() {
+    const name = document.getElementById('goalName').value.trim();
+    const target = parseFloat(document.getElementById('goalTarget').value);
+    const currency = document.getElementById('goalCur').value;
+    if (!name || !target || target <= 0 || !currency) { shakeEl('goalTarget'); return; }
+    state.goals = state.goals || [];
+    state.goals.push({ id: Date.now(), name, target, currency, saved: 0, done: false, createdAt: Date.now() });
+    document.getElementById('goalName').value = '';
+    document.getElementById('goalTarget').value = '';
+    saveState();
+    render();
+    bounce('goalAddBtn');
+    showEmoji('🎯');
+}
+
+function contributeToGoal(id) {
+    const goal = (state.goals||[]).find(g => g.id === id);
+    if (!goal || goal.done) return;
+    const amtEl = document.getElementById('goalAmt_' + id);
+    const amt = parseFloat(amtEl?.value);
+    if (!amt || amt <= 0) { if(amtEl) shakeEl('goalAmt_' + id); return; }
+    const bal = state.wallets[goal.currency] || 0;
+    if (amt > bal + 0.001) { if(amtEl) shakeEl('goalAmt_' + id); return; }
+    state.wallets[goal.currency] = bal - amt;
+    if (state.wallets[goal.currency] <= 0.001) delete state.wallets[goal.currency];
+    goal.saved = (goal.saved || 0) + amt;
+    if (goal.saved >= goal.target) { goal.done = true; launchConfetti(); checkBadges(); }
+    if(amtEl) amtEl.value = '';
+    saveState();
+    render();
+    checkBadges();
+}
+
+function deleteGoal(id) {
+    const idx = (state.goals||[]).findIndex(g => g.id === id);
+    if (idx >= 0) {
+        const goal = state.goals[idx];
+        // Restore saved amount to wallet if goal not done
+        if (!goal.done && goal.saved > 0) {
+            state.wallets[goal.currency] = (state.wallets[goal.currency] || 0) + goal.saved;
+        }
+        state.goals.splice(idx, 1);
+        saveState(); render();
+    }
+}
+
+function renderGoals() {
+    fillGoalCur();
+    const c = document.getElementById('goalsList');
+    if (!c) return;
+    const goals = state.goals || [];
+    if (!goals.length) { c.innerHTML = ''; return; }
+    c.innerHTML = goals.map(g => {
+        const pct = Math.min(100, (g.saved / g.target) * 100);
+        const cur = CUR[g.currency] || { sym: g.currency, flag: '' };
+        const savedFmt = fmt(g.saved, g.currency);
+        const targetFmt = fmt(g.target, g.currency);
+        const bal = state.wallets[g.currency] || 0;
+        const doneLabel = g.done ? '🎉 Objectif atteint!' : '';
+        return `<div class="goal-card ${g.done ? 'done' : ''}">
+            <div class="goal-header">
+                <div class="goal-name">${cur.flag} ${g.name}</div>
+                <div style="display:flex;gap:6px;align-items:center">
+                    ${doneLabel ? `<span style="font-size:0.8rem;font-weight:800;color:var(--green)">${doneLabel}</span>` : ''}
+                    <button class="btn-goal-del" onclick="deleteGoal(${g.id})">🗑️</button>
+                </div>
+            </div>
+            <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
+            <div class="goal-amounts">${savedFmt} / ${targetFmt} · ${pct.toFixed(0)}%</div>
+            ${!g.done ? `<div class="goal-actions" style="margin-top:12px">
+                <div class="goal-input-row">
+                    <input type="number" id="goalAmt_${g.id}" placeholder="Ajouter ${cur.sym}..." inputmode="decimal" step="0.01" min="0">
+                </div>
+                <button class="btn-goal" onclick="contributeToGoal(${g.id})">💪 Mettre</button>
+            </div>
+            <div style="font-size:0.7rem;color:rgba(255,255,255,0.3);font-weight:700;margin-top:6px">Disponible: ${fmt(bal,g.currency)}</div>` : ''}
+        </div>`;
+    }).join('');
 }
 
 // ===== TRANSFER HISTORY =====
@@ -1587,11 +1930,17 @@ async function sendToUser() {
     const amt = parseFloat(document.getElementById('sendAmt').value);
     const cur = document.getElementById('sendCur').value;
     const recipient = OTHER_USER[currentUser];
+    const OTHER_NAMES = { 'yoyo': 'Enzo', 'enzo': 'Yoyo' };
 
     if (!amt || amt <= 0 || !cur || !CUR[cur]) { shakeEl('sendAmt'); return; }
     const bal = state.wallets[cur] || 0;
     if (amt > bal + 0.001) { shakeEl('sendAmt'); return; }
     if (!recipient) { shakeEl('sendBtn'); return; }
+
+    // Confirmation
+    const recipientDisplayName = OTHER_NAMES[currentUser] || recipient;
+    const ok = await showConfirm('📤', `Tu veux vraiment envoyer ${fmt(amt, cur)} à ${recipientDisplayName} ?`);
+    if (!ok) return;
 
     // Disable button during request
     const btn = document.getElementById('sendBtn');
@@ -1625,14 +1974,14 @@ async function sendToUser() {
         document.getElementById('sendAmt').value = '';
         updateSendInfo();
 
-        const OTHER_NAMES = { 'yoyo': 'Enzo', 'enzo': 'Yoyo' };
         const ok = document.getElementById('sendSuccess');
-        ok.textContent = `✅ ${fmt(amt, cur)} envoyé à ${OTHER_NAMES[currentUser] || recipient}! 🎉`;
+        ok.textContent = `✅ ${fmt(amt, cur)} envoyé à ${recipientDisplayName}! 🎉`;
         ok.style.display = 'block';
         setTimeout(() => { ok.style.display = 'none'; }, 3500);
 
         showEmoji('💸');
         bounce('sendBtn');
+        checkBadges();
     } catch(e) {
         btn.disabled = false;
         btn.textContent = 'Envoyer! 🚀';
