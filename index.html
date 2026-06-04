@@ -1802,65 +1802,138 @@ const BADGES_DEF = [
     { id: 'all_featured',   icon: '👑', name: 'Le Grand Patron',        desc: 'Tu as du TND, CHF, EUR et EGP en même temps!' },
 ];
 
+// Vérifie si un badge est ACTUELLEMENT actif (conditions remplies maintenant)
+function isBadgeCurrentlyActive(id) {
+    const w = state.wallets || {};
+    const totalEUR = Object.entries(w).reduce((s,[c,b])=>s+toEUR(b,c),0);
+    const active = Object.keys(w).filter(c=>(w[c]||0)>0);
+    const sentCount = (state.transfers||[]).filter(t=>t.direction==='sent').length;
+    switch(id) {
+        case 'first_expense':  return state.expenses.length >= 1;
+        case 'first_transfer': return sentCount >= 1;
+        case 'first_goal':     return (state.goals||[]).some(g=>g.done);
+        case 'transfert_5':    return sentCount >= 5;
+        case 'transfert_10':   return sentCount >= 10;
+        case 'euro_rich':      return (w.EUR||0) >= 100;
+        case 'rich_tnd':       return (w.TND||0) >= 1000;
+        case 'swiss':          return (w.CHF||0) >= 100;
+        case 'pharaon':        return (w.EGP||0) >= 5000;
+        case 'savings_50':     return totalEUR >= 50;
+        case 'savings_200':    return totalEUR >= 200;
+        case 'whale':          return totalEUR >= 500;
+        case 'multi_currency': return active.length >= 3;
+        case 'diversifie':     return (w.TND||0)>0 && (w.EUR||0)>0;
+        case 'all_featured':   return ['TND','CHF','EUR','EGP'].every(c=>(w[c]||0)>0);
+        default: return true;
+    }
+}
+
 function checkBadges() {
     state.badges = state.badges || [];
-    let newBadge = false;
-    const add = (id) => {
+    state.badgesInactive = state.badgesInactive || []; // badges earned mais conditions plus remplies
+    let changed = false;
+
+    const tryAdd = (id) => {
+        const isActive = isBadgeCurrentlyActive(id);
         if (!state.badges.includes(id)) {
-            state.badges.push(id);
-            newBadge = true;
-            const def = BADGES_DEF.find(b => b.id === id);
-            if (def) showBadgeNotif(def);
+            if (isActive) {
+                state.badges.push(id);
+                changed = true;
+                showBadgeNotif(BADGES_DEF.find(b=>b.id===id), false);
+            }
+        } else {
+            // Badge déjà gagné — vérifier si de retour après avoir été inactif
+            const wasInactive = state.badgesInactive.includes(id);
+            if (isActive && wasInactive) {
+                state.badgesInactive = state.badgesInactive.filter(x=>x!==id);
+                changed = true;
+                showBadgeNotif(BADGES_DEF.find(b=>b.id===id), true); // "de retour"
+            } else if (!isActive && !wasInactive) {
+                state.badgesInactive.push(id);
+                changed = true;
+            }
         }
     };
+
     const transfers = state.transfers || [];
     const sentCount = transfers.filter(t=>t.direction==='sent').length;
     const totalEUR = Object.entries(state.wallets).reduce((s,[c,b])=>s+toEUR(b,c),0);
     const activeWallets = Object.keys(state.wallets).filter(c=>(state.wallets[c]||0)>0);
 
-    if (state.expenses.length >= 1)                             add('first_expense');
-    if (sentCount >= 1)                                         add('first_transfer');
-    if ((state.goals||[]).some(g=>g.done))                      add('first_goal');
-    if (sentCount >= 5)                                         add('transfert_5');
-    if (sentCount >= 10)                                        add('transfert_10');
-    if ((state.wallets.EUR||0) >= 100)                          add('euro_rich');
-    if ((state.wallets.TND||0) >= 1000)                         add('rich_tnd');
-    if ((state.wallets.CHF||0) >= 100)                          add('swiss');
-    if ((state.wallets.EGP||0) >= 5000)                         add('pharaon');
-    if (totalEUR >= 50)                                         add('savings_50');
-    if (totalEUR >= 200)                                        add('savings_200');
-    if (totalEUR >= 500)                                        add('whale');
-    if (activeWallets.length >= 3)                              add('multi_currency');
-    if ((state.wallets.TND||0)>0 && (state.wallets.EUR||0)>0)  add('diversifie');
-    if (['TND','CHF','EUR','EGP'].every(c=>(state.wallets[c]||0)>0)) add('all_featured');
-    if (newBadge) saveState();
+    if (state.expenses.length >= 1)                              tryAdd('first_expense');
+    if (sentCount >= 1)                                          tryAdd('first_transfer');
+    if ((state.goals||[]).some(g=>g.done))                       tryAdd('first_goal');
+    if (sentCount >= 5)                                          tryAdd('transfert_5');
+    if (sentCount >= 10)                                         tryAdd('transfert_10');
+    if ((state.wallets.EUR||0) >= 100)                           tryAdd('euro_rich');
+    if ((state.wallets.TND||0) >= 1000)                          tryAdd('rich_tnd');
+    if ((state.wallets.CHF||0) >= 100)                           tryAdd('swiss');
+    if ((state.wallets.EGP||0) >= 5000)                          tryAdd('pharaon');
+    if (totalEUR >= 50)                                          tryAdd('savings_50');
+    if (totalEUR >= 200)                                         tryAdd('savings_200');
+    if (totalEUR >= 500)                                         tryAdd('whale');
+    if (activeWallets.length >= 3)                               tryAdd('multi_currency');
+    if ((state.wallets.TND||0)>0 && (state.wallets.EUR||0)>0)   tryAdd('diversifie');
+    if (['TND','CHF','EUR','EGP'].every(c=>(state.wallets[c]||0)>0)) tryAdd('all_featured');
+
+    // Marquer les badges gagnés mais plus actifs
+    state.badges.forEach(id => {
+        if (!isBadgeCurrentlyActive(id) && !state.badgesInactive.includes(id)) {
+            state.badgesInactive.push(id); changed = true;
+        }
+    });
+
+    if (changed) saveState();
     renderBadges();
 }
 
-function showBadgeNotif(def) {
+function showBadgeNotif(def, isReturn = false) {
+    if (!def) return;
     const modal = document.getElementById('badgeModal');
     document.getElementById('badgeModalIcon').textContent = def.icon;
-    document.getElementById('badgeModalName').textContent = def.name;
-    document.getElementById('badgeModalDesc').textContent = def.desc;
+    document.getElementById('badgeModalName').textContent = isReturn ? `${def.name} — de retour!` : def.name;
+    document.getElementById('badgeModalDesc').textContent = isReturn
+        ? `🎉 Ton badge "${def.name}" est de retour! Tu as rempli les conditions à nouveau.`
+        : def.desc;
     modal.style.display = 'flex';
 }
 
 function renderBadges() {
     const c = document.getElementById('badgesList');
     if (!c) return;
-    const earned = (state.badges || []);
+    const earned = state.badges || [];
+    const inactive = state.badgesInactive || [];
     if (!earned.length) {
         c.innerHTML = `<div class="empty"><span class="e-icon">🥚</span><p>Gagne tes premiers badges!</p></div>`;
         return;
     }
-    c.innerHTML = earned.map(id => {
-        const def = BADGES_DEF.find(b => b.id === id);
-        if (!def) return '';
-        return `<div class="badge-item">
-            <div class="badge-icon-big">${def.icon}</div>
-            <div><div class="badge-name">${def.name}</div><div class="badge-desc">${def.desc}</div></div>
-        </div>`;
-    }).join('');
+    // Active badges first, then inactive (greyed)
+    const active = earned.filter(id => !inactive.includes(id));
+    const hist   = earned.filter(id =>  inactive.includes(id));
+    let html = '';
+    if (active.length) {
+        html += active.map(id => {
+            const def = BADGES_DEF.find(b=>b.id===id); if(!def) return '';
+            return `<div class="badge-item">
+                <div class="badge-icon-big">${def.icon}</div>
+                <div><div class="badge-name">${def.name}</div><div class="badge-desc">${def.desc}</div></div>
+            </div>`;
+        }).join('');
+    }
+    if (hist.length) {
+        html += `<div style="font-size:0.72rem;font-weight:900;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07)">🕐 Badges historiques</div>`;
+        html += hist.map(id => {
+            const def = BADGES_DEF.find(b=>b.id===id); if(!def) return '';
+            return `<div class="badge-item" style="opacity:0.4;filter:grayscale(0.8)">
+                <div class="badge-icon-big">${def.icon}</div>
+                <div>
+                    <div class="badge-name" style="color:rgba(255,255,255,0.5)">${def.name}</div>
+                    <div class="badge-desc">Conditions plus remplies pour l'instant</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+    c.innerHTML = html;
 }
 
 function fillGoalCur() {
