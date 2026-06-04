@@ -57,7 +57,7 @@
 
         /* ===== HEADER ===== */
         .header {
-            padding: 20px 20px 14px;
+            padding: 10px 16px 8px;
             text-align: center;
             position: sticky;
             top: 0;
@@ -70,7 +70,7 @@
 
         .header-title {
             font-family: 'Fredoka One', cursive;
-            font-size: 2rem;
+            font-size: 1.6rem;
             color: var(--yellow);
             animation: glow 2.5s ease-in-out infinite alternate;
         }
@@ -81,18 +81,18 @@
         }
 
         .header-sub {
-            font-size: 0.78rem;
+            font-size: 0.68rem;
             color: rgba(255,255,255,0.5);
-            margin-top: 2px;
+            margin-top: 1px;
             font-weight: 700;
         }
 
         /* ===== BALANCE CARD ===== */
         .balance-card {
-            margin: 18px 16px 14px;
+            margin: 10px 12px 10px;
             background: linear-gradient(135deg, #7b2ff7, #f222b5);
-            border-radius: 26px;
-            padding: 22px 22px 18px;
+            border-radius: 22px;
+            padding: 16px 18px 14px;
             box-shadow: 0 24px 60px rgba(155,93,229,0.45), inset 0 1px 0 rgba(255,255,255,0.2);
             position: relative;
             overflow: hidden;
@@ -119,10 +119,10 @@
 
         .balance-amount {
             font-family: 'Fredoka One', cursive;
-            font-size: 3.2rem;
+            font-size: 2.5rem;
             color: #fff;
             line-height: 1.1;
-            margin: 6px 0 4px;
+            margin: 4px 0 2px;
         }
 
         .balance-msg {
@@ -133,7 +133,7 @@
         }
 
         .main-currency-row {
-            margin-top: 14px;
+            margin-top: 10px;
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
@@ -175,7 +175,7 @@
         /* ===== TABS ===== */
         .tabs {
             display: flex;
-            margin: 0 16px 18px;
+            margin: 0 12px 10px;
             background: rgba(255,255,255,0.07);
             border-radius: 18px;
             padding: 4px;
@@ -210,7 +210,7 @@
         }
 
         /* ===== SECTIONS ===== */
-        .section { display: none; padding: 0 16px; }
+        .section { display: none; padding: 0 12px; }
         .section.active { display: block; animation: sectionIn 0.3s ease; }
 
         @keyframes sectionIn {
@@ -222,17 +222,17 @@
         .card {
             background: rgba(255,255,255,0.07);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 22px;
-            padding: 20px;
-            margin-bottom: 14px;
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
             backdrop-filter: blur(12px);
         }
 
         .card-title {
             font-family: 'Fredoka One', cursive;
-            font-size: 1.05rem;
+            font-size: 1rem;
             color: var(--yellow);
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         /* ===== FORM ===== */
@@ -248,10 +248,10 @@
             width: 100%;
             background: rgba(255,255,255,0.09);
             border: 2px solid rgba(255,255,255,0.13);
-            border-radius: 14px;
-            padding: 13px 15px;
+            border-radius: 12px;
+            padding: 11px 13px;
             color: white;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-family: 'Nunito', sans-serif;
             font-weight: 700;
             outline: none;
@@ -273,10 +273,10 @@
         /* ===== BUTTONS ===== */
         .btn {
             width: 100%;
-            padding: 15px;
+            padding: 13px;
             border: none;
-            border-radius: 16px;
-            font-size: 1rem;
+            border-radius: 14px;
+            font-size: 0.95rem;
             font-weight: 900;
             font-family: 'Nunito', sans-serif;
             cursor: pointer;
@@ -673,6 +673,72 @@
             margin-top: 12px;
             display: none;
         }
+
+        /* ===== SEND TAB REDESIGN ===== */
+        .send-hero { text-align: center; margin-bottom: 16px; padding-top: 4px; }
+        .send-to-label { font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.4); }
+        .send-to-name { font-family: 'Fredoka One', cursive; font-size: 2rem; color: white; margin-top: 2px; }
+        .send-amount-block { display: flex; gap: 8px; align-items: stretch; margin-bottom: 6px; }
+        .send-big-input {
+            flex: 1; background: rgba(255,255,255,0.09); border: 2px solid rgba(255,255,255,0.13);
+            border-radius: 14px; padding: 14px 16px; color: white;
+            font-size: 1.6rem; font-family: 'Fredoka One', cursive;
+            outline: none; transition: border-color 0.2s; text-align: center;
+            appearance: none; -webkit-appearance: none;
+        }
+        .send-big-input:focus { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(254,228,64,0.15); }
+        .send-big-input::placeholder { color: rgba(255,255,255,0.2); font-size: 1.4rem; }
+        .send-cur-sel {
+            background: rgba(255,255,255,0.09); border: 2px solid rgba(255,255,255,0.13);
+            border-radius: 14px; padding: 14px 10px; color: white;
+            font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.85rem;
+            outline: none; appearance: none; -webkit-appearance: none; cursor: pointer;
+            min-width: 85px; text-align: center;
+        }
+        .send-bal-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 6px 2px 14px; font-size: 0.78rem; font-weight: 800;
+        }
+        .send-bal-available { color: rgba(255,255,255,0.45); }
+        .send-bal-amount { color: var(--yellow); }
+        .send-max-btn {
+            background: rgba(254,228,64,0.15); border: 1px solid rgba(254,228,64,0.3);
+            border-radius: 8px; padding: 4px 10px; color: var(--yellow);
+            font-family: 'Nunito', sans-serif; font-size: 0.75rem; font-weight: 900;
+            cursor: pointer;
+        }
+        .send-warn { background: rgba(255,71,87,0.12); border-radius: 10px; padding: 8px 12px;
+            font-size: 0.78rem; font-weight: 800; color: #ff6b6b; margin-bottom: 10px; text-align:center; }
+
+        /* ===== GOALS REDESIGN ===== */
+        .goal-card {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px; padding: 14px 16px; margin-bottom: 10px;
+            transition: border-color 0.3s;
+        }
+        .goal-card.done { border-color: rgba(0,245,212,0.5); background: rgba(0,245,212,0.06); }
+        .goal-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .goal-info { display: flex; align-items: center; gap: 10px; }
+        .goal-emoji-circle {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; flex-shrink: 0;
+        }
+        .goal-card.done .goal-emoji-circle { background: linear-gradient(135deg, var(--green), #00BBF9); }
+        .goal-name { font-family: 'Fredoka One', cursive; font-size: 1.1rem; color: white; }
+        .goal-sub { font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.4); margin-top: 2px; }
+        .goal-pct-big { font-family: 'Fredoka One', cursive; font-size: 1.3rem; color: var(--yellow); }
+        .goal-card.done .goal-pct-big { color: var(--green); }
+        .goal-bar-wrap { position: relative; margin-bottom: 12px; }
+        .goal-bar-bg { background: rgba(255,255,255,0.1); border-radius: 20px; height: 16px; overflow: hidden; }
+        .goal-bar-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--purple), var(--pink)); transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+        .goal-card.done .goal-bar-fill { background: linear-gradient(90deg, var(--green), #00BBF9); }
+        .goal-amounts-row { display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.4); margin-top: 5px; }
+        .goal-contribute { display: flex; gap: 8px; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .goal-contribute input { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 9px 12px; color: white; font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 700; outline: none; }
+        .goal-bal-info { font-size: 0.68rem; color: rgba(255,255,255,0.35); font-weight: 700; margin-top: 4px; }
 
         /* ===== CONFIRM MODAL ===== */
         .modal-overlay {
@@ -1117,28 +1183,27 @@
 <!-- ===== SEND TO USER ===== -->
 <div class="section" id="section-send">
     <div class="card">
-        <div class="card-title" id="sendTitle">📤 Envoyer de l'argent</div>
-        <div class="sec-lbl" id="sendSubtitle">À qui tu envoies? 👇</div>
-
-        <div class="sec-lbl" style="margin-top:4px">Depuis quelle cagnotte? 💰</div>
-        <div class="form-row">
-            <div class="iw f2">
-                <input type="number" id="sendAmt" placeholder="Montant" inputmode="decimal" step="0.01" min="0" oninput="updateSendInfo()">
-            </div>
-            <div class="iw f1">
-                <select id="sendCur" onchange="updateSendInfo()"></select>
-            </div>
+        <!-- Recipient display -->
+        <div class="send-hero">
+            <div class="send-to-label">Envoyer à</div>
+            <div class="send-to-name" id="sendTitle">Enzo 💸</div>
         </div>
 
-        <div id="sendBalInfo" style="display:none;background:rgba(255,255,255,0.05);border-radius:14px;padding:12px 14px;margin-bottom:14px;font-family:'Nunito',sans-serif;">
-            <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);font-weight:700;margin-bottom:4px">Disponible dans cette cagnotte</div>
-            <div id="sendBalAmt" style="font-size:1.1rem;font-weight:900;color:var(--yellow)"></div>
-            <div id="sendWarning" style="font-size:0.75rem;font-weight:800;color:#ff6b6b;margin-top:4px;display:none">⚠️ Pas assez d'argent!</div>
+        <!-- Big amount + currency -->
+        <div class="send-amount-block">
+            <input type="number" id="sendAmt" placeholder="0" inputmode="decimal" step="0.01" min="0"
+                   class="send-big-input" oninput="updateSendInfo()">
+            <select id="sendCur" class="send-cur-sel" onchange="updateSendInfo()"></select>
         </div>
 
-        <button class="btn btn-add" id="sendBtn" onclick="sendToUser()">
-            Envoyer! 🚀
-        </button>
+        <!-- Balance inline -->
+        <div class="send-bal-row">
+            <span>💰 <span class="send-bal-available">Disponible :</span> <span class="send-bal-amount" id="sendBalAmt">—</span></span>
+            <button class="send-max-btn" id="sendMaxBtn" style="display:none" onclick="setSendMax()">Max</button>
+        </div>
+        <div class="send-warn" id="sendWarning" style="display:none">⚠️ Solde insuffisant!</div>
+
+        <button class="btn btn-add" id="sendBtn" onclick="sendToUser()">Envoyer 🚀</button>
         <div class="transfer-success" id="sendSuccess">✅ Argent envoyé!</div>
     </div>
 
@@ -1830,33 +1895,35 @@ function renderGoals() {
     if (!goals.length) { c.innerHTML = ''; return; }
     c.innerHTML = goals.map(g => {
         const pct = Math.min(100, (g.saved / g.target) * 100);
-        const cur = CUR[g.currency] || { sym: g.currency, flag: '' };
+        const cur = CUR[g.currency] || { sym: g.currency, flag: '💰' };
         const savedFmt = fmt(g.saved, g.currency);
         const targetFmt = fmt(g.target, g.currency);
         const bal = state.wallets[g.currency] || 0;
-        const doneLabel = g.done ? '🎉 Objectif atteint!' : '';
+        const goalIcon = g.done ? '🎉' : cur.flag;
         return `<div class="goal-card ${g.done ? 'done' : ''}">
-            <div class="goal-header">
-                <div class="goal-name">${cur.flag} ${g.name}</div>
-                <div style="display:flex;gap:6px;align-items:center">
-                    ${doneLabel ? `<span style="font-size:0.8rem;font-weight:800;color:var(--green)">${doneLabel}</span>` : ''}
+            <div class="goal-top">
+                <div class="goal-info">
+                    <div class="goal-emoji-circle">${goalIcon}</div>
+                    <div>
+                        <div class="goal-name">${g.name}</div>
+                        <div class="goal-sub">${g.currency} · ${g.done ? '✅ Atteint!' : savedFmt + ' / ' + targetFmt}</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <div class="goal-pct-big">${pct.toFixed(0)}%</div>
                     <button class="btn-goal-del" onclick="deleteGoal(${g.id})">🗑️</button>
                 </div>
             </div>
-            <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
-            <div class="goal-amounts">${savedFmt} / ${targetFmt} · ${pct.toFixed(0)}%</div>
-            ${!g.done ? `
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;margin-bottom:8px">
-                <div style="font-size:0.78rem;font-weight:800;color:rgba(255,255,255,0.45)">💰 Disponible dans ce compte</div>
-                <div style="font-size:0.95rem;font-weight:900;color:${bal>0?'var(--yellow)':'rgba(255,255,255,0.25)'};">${fmt(bal,g.currency)}</div>
+            <div class="goal-bar-wrap">
+                <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
             </div>
-            <div class="goal-actions">
-                <div class="goal-input-row">
-                    <input type="number" id="goalAmt_${g.id}" placeholder="Montant à mettre de côté..." inputmode="decimal" step="0.01" min="0" max="${bal}">
-                </div>
-                ${bal > 0 ? `<button class="btn-goal" style="background:rgba(254,228,64,0.2);color:var(--yellow);border:1px solid rgba(254,228,64,0.3)" onclick="document.getElementById('goalAmt_${g.id}').value='${bal.toFixed(2)}'">Max</button>` : ''}
-                <button class="btn-goal" onclick="contributeToGoal(${g.id})">💪 Mettre</button>
-            </div>` : ''}
+            <div class="goal-amounts-row"><span>${savedFmt}</span><span>${targetFmt}</span></div>
+            ${!g.done ? `<div class="goal-contribute">
+                <input type="number" id="goalAmt_${g.id}" placeholder="Montant..." inputmode="decimal" step="0.01" min="0">
+                ${bal > 0 ? `<button class="btn-goal" style="background:rgba(254,228,64,0.15);color:var(--yellow);border:1px solid rgba(254,228,64,0.3);padding:9px 10px;font-size:0.78rem" onclick="document.getElementById('goalAmt_${g.id}').value='${bal.toFixed(2)}'">Max</button>` : ''}
+                <button class="btn-goal" onclick="contributeToGoal(${g.id})">💪</button>
+            </div>
+            <div class="goal-bal-info">💰 Dispo: ${fmt(bal,g.currency)}</div>` : ''}
         </div>`;
     }).join('');
 }
@@ -1921,23 +1988,28 @@ function fillSendSelect() {
 
 function updateSendInfo() {
     const sel = document.getElementById('sendCur');
-    const info = document.getElementById('sendBalInfo');
     const balEl = document.getElementById('sendBalAmt');
     const warnEl = document.getElementById('sendWarning');
+    const maxBtn = document.getElementById('sendMaxBtn');
     const amt = parseFloat(document.getElementById('sendAmt').value) || 0;
-    if (!sel || !sel.value || !CUR[sel.value]) { if(info) info.style.display='none'; return; }
+    if (!sel || !sel.value || !CUR[sel.value]) { if(balEl) balEl.textContent = '—'; return; }
     const cur = sel.value;
     const bal = state.wallets[cur] || 0;
-    if (!bal) { info.style.display='none'; return; }
-    info.style.display = 'block';
     balEl.textContent = fmt(bal, cur);
+    balEl.style.color = bal > 0 ? 'var(--yellow)' : 'rgba(255,255,255,0.3)';
+    if (maxBtn) maxBtn.style.display = bal > 0 ? 'block' : 'none';
     if (amt > 0 && amt > bal) {
         warnEl.style.display = 'block';
         balEl.style.color = '#ff6b6b';
     } else {
         warnEl.style.display = 'none';
-        balEl.style.color = 'var(--yellow)';
     }
+}
+
+function setSendMax() {
+    const cur = document.getElementById('sendCur').value;
+    const bal = state.wallets[cur] || 0;
+    if (bal > 0) { document.getElementById('sendAmt').value = bal.toFixed(2); updateSendInfo(); }
 }
 
 async function sendToUser() {
@@ -2162,8 +2234,7 @@ async function enterApp(username) {
     // Set send title
     const OTHER_NAMES = { 'yoyo': 'Enzo', 'enzo': 'Yoyo' };
     const recipientName = OTHER_NAMES[currentUser.toLowerCase()] || 'l\'autre';
-    document.getElementById('sendTitle').textContent = `📤 Envoyer à ${recipientName}`;
-    document.getElementById('sendSubtitle').textContent = `Tu envoies de l\'argent à ${recipientName} 💸`;
+    document.getElementById('sendTitle').textContent = `${recipientName} 💸`;
     await loadUserData(currentUser);
     fillAllSelects();
     renderCategories();
