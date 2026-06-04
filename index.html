@@ -770,7 +770,7 @@
 
         /* ===== BADGE NOTIF ===== */
         .badge-notif {
-            position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-120px);
+            position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(120px);
             background: linear-gradient(135deg, #FEE440, #ff9f43);
             border-radius: 20px; padding: 14px 22px;
             display: flex; align-items: center; gap: 10px;
@@ -1876,15 +1876,7 @@ function contributeToGoal(id) {
 
 function deleteGoal(id) {
     const idx = (state.goals||[]).findIndex(g => g.id === id);
-    if (idx >= 0) {
-        const goal = state.goals[idx];
-        // Restore saved amount to wallet if goal not done
-        if (!goal.done && goal.saved > 0) {
-            state.wallets[goal.currency] = (state.wallets[goal.currency] || 0) + goal.saved;
-        }
-        state.goals.splice(idx, 1);
-        saveState(); render();
-    }
+    if (idx >= 0) { state.goals.splice(idx, 1); saveState(); render(); }
 }
 
 function renderGoals() {
@@ -1894,19 +1886,22 @@ function renderGoals() {
     const goals = state.goals || [];
     if (!goals.length) { c.innerHTML = ''; return; }
     c.innerHTML = goals.map(g => {
-        const pct = Math.min(100, (g.saved / g.target) * 100);
+        // Progress = wallet balance auto-detected (no manual contribution, wallet unchanged)
+        const walletBal = state.wallets[g.currency] || 0;
+        const pct = Math.min(100, (walletBal / g.target) * 100);
+        const isReached = walletBal >= g.target;
         const cur = CUR[g.currency] || { sym: g.currency, flag: '💰' };
-        const savedFmt = fmt(g.saved, g.currency);
+        const savedFmt = fmt(walletBal, g.currency);
         const targetFmt = fmt(g.target, g.currency);
-        const bal = state.wallets[g.currency] || 0;
-        const goalIcon = g.done ? '🎉' : cur.flag;
-        return `<div class="goal-card ${g.done ? 'done' : ''}">
+        const goalIcon = isReached ? '🎉' : cur.flag;
+        if (isReached && !g.done) { g.done = true; launchConfetti(); checkBadges(); }
+        return `<div class="goal-card ${isReached ? 'done' : ''}">
             <div class="goal-top">
                 <div class="goal-info">
                     <div class="goal-emoji-circle">${goalIcon}</div>
                     <div>
                         <div class="goal-name">${g.name}</div>
-                        <div class="goal-sub">${g.currency} · ${g.done ? '✅ Atteint!' : savedFmt + ' / ' + targetFmt}</div>
+                        <div class="goal-sub">${g.currency} · ${isReached ? '✅ Objectif atteint!' : savedFmt + ' / ' + targetFmt}</div>
                     </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px">
@@ -1917,13 +1912,13 @@ function renderGoals() {
             <div class="goal-bar-wrap">
                 <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
             </div>
-            <div class="goal-amounts-row"><span>${savedFmt}</span><span>${targetFmt}</span></div>
-            ${!g.done ? `<div class="goal-contribute">
-                <input type="number" id="goalAmt_${g.id}" placeholder="Montant..." inputmode="decimal" step="0.01" min="0">
-                ${bal > 0 ? `<button class="btn-goal" style="background:rgba(254,228,64,0.15);color:var(--yellow);border:1px solid rgba(254,228,64,0.3);padding:9px 10px;font-size:0.78rem" onclick="document.getElementById('goalAmt_${g.id}').value='${bal.toFixed(2)}'">Max</button>` : ''}
-                <button class="btn-goal" onclick="contributeToGoal(${g.id})">💪</button>
+            <div class="goal-amounts-row">
+                <span>💰 ${savedFmt}</span>
+                <span>🎯 ${targetFmt}</span>
             </div>
-            <div class="goal-bal-info">💰 Dispo: ${fmt(bal,g.currency)}</div>` : ''}
+            ${!isReached ? `<div class="goal-bal-info" style="margin-top:6px">
+                Il te manque ${fmt(g.target - walletBal, g.currency)} 💪
+            </div>` : ''}
         </div>`;
     }).join('');
 }
