@@ -999,6 +999,17 @@
 <canvas id="confettiCanvas"></canvas>
 <div class="emoji-fly" id="emojiOverlay">😭</div>
 
+<!-- BADGE MODAL -->
+<div id="badgeModal" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.75);display:none;align-items:center;justify-content:center;padding:24px">
+    <div style="background:linear-gradient(135deg,#1e0542,#2d0a5e);border:2px solid rgba(254,228,64,0.4);border-radius:28px;padding:32px 24px;max-width:300px;width:100%;text-align:center;animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1)">
+        <div id="badgeModalIcon" style="font-size:3.5rem;margin-bottom:8px">🏆</div>
+        <div style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:var(--yellow);margin-bottom:6px">Badge débloqué!</div>
+        <div id="badgeModalName" style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:white;margin-bottom:8px"></div>
+        <div id="badgeModalDesc" style="font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:24px"></div>
+        <button onclick="document.getElementById('badgeModal').style.display='none'" style="background:linear-gradient(135deg,var(--yellow),#ffaa00);color:var(--dark);border:none;border-radius:16px;padding:14px 32px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;cursor:pointer;width:100%">Super! 🎉</button>
+    </div>
+</div>
+
 <!-- CONFIRM MODAL -->
 <div id="confirmModal" class="modal-overlay" style="display:none">
     <div class="modal-box">
@@ -1804,7 +1815,11 @@ function checkBadges() {
 }
 
 function showBadgeNotif(def) {
-    // Badge visible uniquement dans l'onglet Objectifs — pas de popup
+    const modal = document.getElementById('badgeModal');
+    document.getElementById('badgeModalIcon').textContent = def.icon;
+    document.getElementById('badgeModalName').textContent = def.name;
+    document.getElementById('badgeModalDesc').textContent = def.desc;
+    modal.style.display = 'flex';
 }
 
 function renderBadges() {
