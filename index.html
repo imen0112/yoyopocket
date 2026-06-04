@@ -2534,6 +2534,7 @@ async function enterApp(username) {
     if (Object.keys(state.wallets || {}).length > 0) setTimeout(launchConfetti, 600);
     fetchLiveRates(); // fetch live rates in background
     startAutoRefresh();
+    checkBadges(); // accorder tous les badges déjà mérités au login
 }
 
 // ===== AUTO REFRESH (sync between users) =====
