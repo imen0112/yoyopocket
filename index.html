@@ -1245,6 +1245,21 @@
 
 <!-- ===== GOALS ===== -->
 <div class="section" id="section-goals">
+    <div class="card">
+        <div class="card-title">🎯 Nouvel objectif</div>
+        <div class="iw" style="margin-bottom:10px">
+            <input type="text" id="goalName" placeholder="Nike, PS5, Voyage... ✈️" maxlength="30">
+        </div>
+        <div class="form-row">
+            <div class="iw f2">
+                <input type="number" id="goalTarget" placeholder="Montant cible 💰" inputmode="decimal" step="0.01" min="0">
+            </div>
+            <div class="iw f1">
+                <select id="goalCur"></select>
+            </div>
+        </div>
+        <button class="btn btn-add" id="goalAddBtn" onclick="addGoal()">Créer l'objectif! 🚀</button>
+    </div>
     <div id="goalsList"></div>
     <div class="card">
         <div class="card-title">🏆 Mes badges</div>
@@ -2078,51 +2093,77 @@ function renderBadges() {
     c.innerHTML = html;
 }
 
+function fillGoalCur() {
+    const sel = document.getElementById('goalCur');
+    if (!sel || sel.options.length > 0) return;
+    const featured = Object.entries(CUR).filter(([,d]) => d.featured);
+    const others   = Object.entries(CUR).filter(([,d]) => !d.featured);
+    featured.forEach(([code,d]) => {
+        const o = document.createElement('option'); o.value=code; o.textContent=`${d.flag} ${code}`; sel.appendChild(o);
+    });
+    const sep = document.createElement('option'); sep.disabled=true; sep.textContent='──────────'; sel.appendChild(sep);
+    others.forEach(([code,d]) => {
+        const o = document.createElement('option'); o.value=code; o.textContent=`${d.flag} ${code}`; sel.appendChild(o);
+    });
+}
+
+function addGoal() {
+    fillGoalCur();
+    const name = document.getElementById('goalName').value.trim();
+    const target = parseFloat(document.getElementById('goalTarget').value);
+    const currency = document.getElementById('goalCur').value;
+    if (!name) { shakeEl('goalName'); return; }
+    if (!target || target <= 0 || !currency) { shakeEl('goalTarget'); return; }
+    state.goals = state.goals || [];
+    state.goals.push({ id: Date.now(), name, target, currency, done: false, createdAt: Date.now() });
+    document.getElementById('goalName').value = '';
+    document.getElementById('goalTarget').value = '';
+    saveState(); render();
+    bounce('goalAddBtn'); showEmoji('🎯');
+}
+
+function deleteGoal(id) {
+    state.goals = (state.goals||[]).filter(g => g.id !== id);
+    saveState(); render();
+}
+
 function renderGoals() {
+    fillGoalCur();
     const c = document.getElementById('goalsList');
     if (!c) return;
-    const FEATURED = ['TND', 'EUR', 'EGP', 'CHF'];
-    c.innerHTML = FEATURED.map(currency => {
-        const steps = GOAL_PROGRESSIONS[currency];
-        const cur = CUR[currency];
-        const bal = state.wallets[currency] || 0;
-        // Find current step = first target not yet reached
-        const stepIdx = steps.findIndex(g => bal < g.target);
-        const isMaxed = stepIdx === -1;
-        const curStep = isMaxed ? steps.length - 1 : stepIdx;
-        const goal = steps[curStep];
-        const prevTarget = curStep > 0 ? steps[curStep - 1].target : 0;
-        const rawPct = isMaxed ? 100 : ((bal - prevTarget) / (goal.target - prevTarget)) * 100;
-        const pct = Math.min(100, Math.max(0, rawPct));
-        const nextGoal = !isMaxed && curStep + 1 < steps.length ? steps[curStep + 1] : null;
-        const hasWallet = bal > 0;
-
-        return `<div class="goal-card ${isMaxed ? 'done' : ''}">
+    const goals = state.goals || [];
+    if (!goals.length) {
+        c.innerHTML = `<div class="card"><div class="empty"><span class="e-icon">🎯</span><p>Crée ton premier objectif!</p></div></div>`;
+        return;
+    }
+    c.innerHTML = goals.map(g => {
+        const walletBal = state.wallets[g.currency] || 0;
+        const pct = Math.min(100, (walletBal / g.target) * 100);
+        const isReached = walletBal >= g.target;
+        const cur = CUR[g.currency] || { sym: g.currency, flag: '💰' };
+        if (isReached && !g.done) { g.done = true; launchConfetti(); checkBadges(); }
+        return `<div class="goal-card ${isReached ? 'done' : ''}">
             <div class="goal-top">
                 <div class="goal-info">
-                    <div class="goal-emoji-circle">${isMaxed ? '👑' : cur.flag}</div>
+                    <div class="goal-emoji-circle">${isReached ? '🎉' : cur.flag}</div>
                     <div>
-                        <div class="goal-name">${goal.name}</div>
-                        <div class="goal-sub">${currency} · Étape ${curStep + 1} / ${steps.length}</div>
+                        <div class="goal-name">${g.name}</div>
+                        <div class="goal-sub">${g.currency} · ${isReached ? '✅ Atteint!' : fmt(walletBal,g.currency)+' / '+fmt(g.target,g.currency)}</div>
                     </div>
                 </div>
-                <div class="goal-pct-big">${pct.toFixed(0)}%</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <div class="goal-pct-big">${pct.toFixed(0)}%</div>
+                    <button class="btn-goal-del" onclick="deleteGoal(${g.id})">🗑️</button>
+                </div>
             </div>
             <div class="goal-bar-wrap">
                 <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
             </div>
             <div class="goal-amounts-row">
-                <span>💰 ${fmt(bal, currency)}</span>
-                <span>🎯 ${fmt(goal.target, currency)}</span>
+                <span>💰 ${fmt(walletBal,g.currency)}</span>
+                <span>🎯 ${fmt(g.target,g.currency)}</span>
             </div>
-            <div class="goal-bal-info" style="margin-top:6px">
-                ${isMaxed
-                    ? '👑 Maximum atteint! T\'es une légende!'
-                    : hasWallet
-                        ? `Il te manque <strong>${fmt(Math.max(0, goal.target - bal), currency)}</strong> 💪${nextGoal ? ` · Après : ${nextGoal.name}` : ''}`
-                        : `Commence à mettre de l'argent en ${currency} pour progresser! 🚀`
-                }
-            </div>
+            ${!isReached ? `<div class="goal-bal-info" style="margin-top:6px">Il te manque ${fmt(g.target-walletBal,g.currency)} 💪</div>` : ''}
         </div>`;
     }).join('');
 }
