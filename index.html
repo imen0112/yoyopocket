@@ -1075,7 +1075,7 @@
         <div id="badgeModalIcon" style="font-size:3.5rem;margin-bottom:8px">🏆</div>
         <div style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:var(--yellow);margin-bottom:6px">Badge débloqué!</div>
         <div id="badgeModalName" style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:white;margin-bottom:8px"></div>
-        <div id="badgeModalDesc" style="font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:24px"></div>
+        <div id="badgeModalDesc" style="font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:24px;white-space:pre-line;line-height:1.5"></div>
         <button onclick="document.getElementById('badgeModal').style.display='none'" style="background:linear-gradient(135deg,var(--yellow),#ffaa00);color:var(--dark);border:none;border-radius:16px;padding:14px 32px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;cursor:pointer;width:100%">Super! 🎉</button>
     </div>
 </div>
@@ -2013,6 +2013,25 @@ function checkBadges() {
     renderBadges();
 }
 
+function showBadgeDetail(id, isEarned, isHistoric) {
+    const def = BADGES_DEF.find(b => b.id === id);
+    if (!def) return;
+    const modal = document.getElementById('badgeModal');
+    document.getElementById('badgeModalIcon').textContent = def.icon;
+
+    if (isEarned && !isHistoric) {
+        document.getElementById('badgeModalName').textContent = '✅ ' + def.name;
+        document.getElementById('badgeModalDesc').textContent = '🏆 Badge obtenu! ' + def.desc;
+    } else if (isEarned && isHistoric) {
+        document.getElementById('badgeModalName').textContent = '🕐 ' + def.name;
+        document.getElementById('badgeModalDesc').textContent = 'Tu l\'as déjà eu! Remets tes conditions pour le récupérer.\n\n💡 ' + def.desc;
+    } else {
+        document.getElementById('badgeModalName').textContent = '🔒 ' + def.name;
+        document.getElementById('badgeModalDesc').textContent = '💡 Comment l\'obtenir:\n' + def.desc;
+    }
+    modal.style.display = 'flex';
+}
+
 function showBadgeNotif(def, isReturn = false) {
     if (!def) return;
     const modal = document.getElementById('badgeModal');
@@ -2042,22 +2061,15 @@ function renderBadges() {
         // Active first
         active.forEach(id => {
             const def = BADGES_DEF.find(b=>b.id===id); if(!def) return;
-            html += `<div class="badge-pill">
-                <div class="badge-pill-circle">
-                    ${def.icon}
-                    <div class="badge-pill-check">✓</div>
-                </div>
+            html += `<div class="badge-pill" onclick="showBadgeDetail('${id}',true,false)" style="cursor:pointer">
+                <div class="badge-pill-circle">${def.icon}<div class="badge-pill-check">✓</div></div>
                 <div class="badge-pill-name">${def.name}</div>
             </div>`;
         });
-        // Historical (dimmed)
         hist.forEach(id => {
             const def = BADGES_DEF.find(b=>b.id===id); if(!def) return;
-            html += `<div class="badge-pill">
-                <div class="badge-pill-circle hist">
-                    ${def.icon}
-                    <div class="badge-pill-check" style="background:rgba(255,255,255,0.3)">🕐</div>
-                </div>
+            html += `<div class="badge-pill" onclick="showBadgeDetail('${id}',true,true)" style="cursor:pointer">
+                <div class="badge-pill-circle hist">${def.icon}<div class="badge-pill-check" style="background:rgba(255,255,255,0.3)">🕐</div></div>
                 <div class="badge-pill-name" style="color:rgba(255,255,255,0.4)">${def.name}</div>
             </div>`;
         });
@@ -2070,19 +2082,17 @@ function renderBadges() {
     html += `<div class="badge-section-label" style="color:rgba(155,93,229,0.7);margin-top:${earned.length?'14px':'0'}">🔒 À débloquer (${locked.length})</div>`;
     html += `<div class="badges-grid">`;
 
-    // Earned in grid (small)
     earned.forEach(id => {
         const def = BADGES_DEF.find(b=>b.id===id); if(!def) return;
         const isHist = inactive.includes(id);
-        html += `<div class="badge-card unlocked" style="${isHist?'opacity:0.55':''}">
+        html += `<div class="badge-card unlocked" style="${isHist?'opacity:0.55':''};cursor:pointer" onclick="showBadgeDetail('${id}',true,${isHist})">
             ${isHist ? '<div class="badge-hist-icon">🕐</div>' : ''}
             <div class="badge-card-icon">${def.icon}</div>
             <div class="badge-card-label">${def.name}</div>
         </div>`;
     });
-    // Locked in grid
     locked.forEach(def => {
-        html += `<div class="badge-card locked">
+        html += `<div class="badge-card locked" style="cursor:pointer" onclick="showBadgeDetail('${def.id}',false,false)">
             <div class="badge-lock-icon">🔒</div>
             <div class="badge-card-icon">${def.icon}</div>
             <div class="badge-card-label">${def.name}</div>
