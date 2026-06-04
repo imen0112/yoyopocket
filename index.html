@@ -2112,36 +2112,12 @@ function renderBadges() {
         html += `<div class="empty" style="margin-bottom:16px"><span class="e-icon">🥚</span><p>Gagne ton premier badge!</p></div>`;
     }
 
-    // ── Grille: tous les badges (earned + locked) ──
-    const earnedActivity = earned.filter(id => !id.startsWith('cur_'));
-    const lockedActivity = locked; // activity badges not yet earned
-    const totalEarned = earned.length;
-
-    html += `<div class="badge-section-label" style="color:rgba(155,93,229,0.7);margin-top:14px">🎖️ Badges (${totalEarned} gagnés)</div>`;
+    // ── Grille: SEULEMENT les badges à gagner ──
+    html += `<div class="badge-section-label" style="color:rgba(155,93,229,0.7);margin-top:14px">🔒 À gagner</div>`;
     html += `<div class="badges-grid">`;
 
-    // Earned activity badges
-    earnedActivity.forEach(id => {
-        const def = BADGES_DEF.find(b=>b.id===id); if(!def) return;
-        const isHist = inactive.includes(id);
-        html += `<div class="badge-card unlocked" style="${isHist?'opacity:0.55':''};cursor:pointer" onclick="showBadgeDetail('${id}',true,${isHist})">
-            ${isHist?'<div class="badge-hist-icon">🕐</div>':''}
-            <div class="badge-card-icon">${def.icon}</div>
-            <div class="badge-card-label">${def.name}</div>
-        </div>`;
-    });
-
-    // Earned currency milestones
-    earned.filter(id=>id.startsWith('cur_')).forEach(id => {
-        const [,cur,idx] = id.split('_'); const def = getMilestoneDef(cur, +idx); if(!def) return;
-        html += `<div class="badge-card unlocked" style="cursor:pointer" onclick="showBadgeDetail('${id}',true,false)">
-            <div class="badge-card-icon">${def.icon}</div>
-            <div class="badge-card-label">${def.name}</div>
-        </div>`;
-    });
-
-    // Locked activity badges
-    lockedActivity.forEach(def => {
+    // Badges activité pas encore gagnés
+    locked.forEach(def => {
         html += `<div class="badge-card locked" style="cursor:pointer" onclick="showBadgeDetail('${def.id}',false,false)">
             <div class="badge-lock-icon">🔒</div>
             <div class="badge-card-icon">${def.icon}</div>
@@ -2149,11 +2125,11 @@ function renderBadges() {
         </div>`;
     });
 
-    // Next milestone per currency (1 card per currency, the next unearned)
+    // Prochain palier de chaque devise (1 carte par devise)
     Object.keys(MILESTONE_STEPS).forEach(cur => {
         const steps = MILESTONE_STEPS[cur];
         const nextIdx = steps.findIndex((_,i) => !earned.includes(`cur_${cur}_${i}`));
-        if (nextIdx === -1) return; // all earned
+        if (nextIdx === -1) return;
         const def = getMilestoneDef(cur, nextIdx); if(!def) return;
         html += `<div class="badge-card locked" style="cursor:pointer" onclick="showBadgeDetail('${def.id}',false,false)">
             <div class="badge-lock-icon">🔒</div>
