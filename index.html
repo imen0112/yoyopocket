@@ -1845,13 +1845,18 @@ function renderGoals() {
             </div>
             <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
             <div class="goal-amounts">${savedFmt} / ${targetFmt} · ${pct.toFixed(0)}%</div>
-            ${!g.done ? `<div class="goal-actions" style="margin-top:12px">
-                <div class="goal-input-row">
-                    <input type="number" id="goalAmt_${g.id}" placeholder="Ajouter ${cur.sym}..." inputmode="decimal" step="0.01" min="0">
-                </div>
-                <button class="btn-goal" onclick="contributeToGoal(${g.id})">💪 Mettre</button>
+            ${!g.done ? `
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;margin-bottom:8px">
+                <div style="font-size:0.78rem;font-weight:800;color:rgba(255,255,255,0.45)">💰 Disponible dans ce compte</div>
+                <div style="font-size:0.95rem;font-weight:900;color:${bal>0?'var(--yellow)':'rgba(255,255,255,0.25)'};">${fmt(bal,g.currency)}</div>
             </div>
-            <div style="font-size:0.7rem;color:rgba(255,255,255,0.3);font-weight:700;margin-top:6px">Disponible: ${fmt(bal,g.currency)}</div>` : ''}
+            <div class="goal-actions">
+                <div class="goal-input-row">
+                    <input type="number" id="goalAmt_${g.id}" placeholder="Montant à mettre de côté..." inputmode="decimal" step="0.01" min="0" max="${bal}">
+                </div>
+                ${bal > 0 ? `<button class="btn-goal" style="background:rgba(254,228,64,0.2);color:var(--yellow);border:1px solid rgba(254,228,64,0.3)" onclick="document.getElementById('goalAmt_${g.id}').value='${bal.toFixed(2)}'">Max</button>` : ''}
+                <button class="btn-goal" onclick="contributeToGoal(${g.id})">💪 Mettre</button>
+            </div>` : ''}
         </div>`;
     }).join('');
 }
