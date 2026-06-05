@@ -2047,21 +2047,47 @@ function checkBadges() {
 }
 
 function showBadgeDetail(id, isEarned, isHistoric) {
-    let def = BADGES_DEF.find(b=>b.id===id);
-    if (!def && id.startsWith('cur_')) { const p=id.split('_'); def=getMilestoneDef(p[1],+p[2]); }
-    if (!def) return;
     const modal = document.getElementById('badgeModal');
-    document.getElementById('badgeModalIcon').textContent = def.icon;
 
+    // Badges liés à une devise → afficher toute la progression
+    const CUR_BADGE_MAP = { 'euro_rich':'EUR','rich_tnd':'TND','swiss':'CHF','pharaon':'EGP',
+                             'savings_50':'EUR','savings_200':'EUR','whale':'EUR' };
+    const isMilestone = id.startsWith('cur_');
+    const targetCur = isMilestone ? id.split('_')[1] : CUR_BADGE_MAP[id];
+
+    if (targetCur && MILESTONE_STEPS[targetCur]) {
+        const c = M_CFG[targetCur];
+        const steps = MILESTONE_STEPS[targetCur];
+        const earnedBadges = state.badges || [];
+        const bal = state.wallets[targetCur] || 0;
+
+        document.getElementById('badgeModalIcon').textContent = c.flag;
+        document.getElementById('badgeModalName').textContent = `Progression ${targetCur}`;
+
+        let lines = `💰 Solde actuel : ${fmt(bal, targetCur)}\n\n`;
+        steps.forEach((val, i) => {
+            const got = earnedBadges.includes(`cur_${targetCur}_${i}`);
+            const label = val >= 1000 ? (val/1000).toFixed(val%1000===0?0:1)+'K' : val;
+            lines += `${got ? '✅' : '🔒'} ${M_ICONS[i]} ${label} ${c.sym}\n`;
+        });
+        document.getElementById('badgeModalDesc').textContent = lines;
+        modal.style.display = 'flex';
+        return;
+    }
+
+    // Badge activité normal
+    let def = BADGES_DEF.find(b=>b.id===id);
+    if (!def) return;
+    document.getElementById('badgeModalIcon').textContent = def.icon;
     if (isEarned && !isHistoric) {
         document.getElementById('badgeModalName').textContent = '✅ ' + def.name;
-        document.getElementById('badgeModalDesc').textContent = '🏆 Badge obtenu! ' + def.desc;
+        document.getElementById('badgeModalDesc').textContent = '🏆 Badge obtenu!\n\n' + def.desc;
     } else if (isEarned && isHistoric) {
         document.getElementById('badgeModalName').textContent = '🕐 ' + def.name;
-        document.getElementById('badgeModalDesc').textContent = 'Tu l\'as déjà eu! Remets tes conditions pour le récupérer.\n\n💡 ' + def.desc;
+        document.getElementById('badgeModalDesc').textContent = 'Tu l\'as déjà eu! Remets les conditions.\n\n💡 ' + def.desc;
     } else {
         document.getElementById('badgeModalName').textContent = '🔒 ' + def.name;
-        document.getElementById('badgeModalDesc').textContent = '💡 Comment l\'obtenir:\n' + def.desc;
+        document.getElementById('badgeModalDesc').textContent = '💡 Comment l\'obtenir :\n' + def.desc;
     }
     modal.style.display = 'flex';
 }
